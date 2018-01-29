@@ -1,4 +1,4 @@
-# Flink-job-deployer
+# Flink-deployer
 
 A Go command-line utility to facilitate deployments to Apache Flink.
 
