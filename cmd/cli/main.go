@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/urfave/cli"
 	"github.com/spf13/afero"
+	"github.com/urfave/cli"
 )
 
 var filesystem afero.Fs
@@ -75,11 +75,11 @@ func DeployAction(c *cli.Context) error {
 func UpdateAction(c *cli.Context) error {
 	update := UpdateJob{}
 
-	jobName := c.String("jobname")
-	if len(jobName) == 0 {
-		return cli.NewExitError("unspecified flag 'jobname'", -1)
+	jobNameBase := c.String("jobname-base")
+	if len(jobNameBase) == 0 {
+		return cli.NewExitError("unspecified flag 'jobname-base'", -1)
 	} else {
-		update.jobName = jobName
+		update.jobNameBase = jobNameBase
 	}
 	runArgs := c.String("run-args")
 	if len(runArgs) > 0 {
@@ -241,8 +241,8 @@ func main() {
 			Usage:   "Update a running job by creating a savepoint, stopping the job and deploying the new version",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "jobname, j",
-					Usage: "The name of the job to update",
+					Name:  "jobname-base, jb",
+					Usage: "The base name of the job to update",
 				},
 				cli.StringFlag{
 					Name:  "filename, f",

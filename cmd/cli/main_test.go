@@ -1,10 +1,11 @@
 package main
 
 import (
-	"testing"
-	"github.com/urfave/cli"
-	"github.com/stretchr/testify/assert"
 	"flag"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli"
 )
 
 /*
@@ -65,7 +66,7 @@ func TestDeployActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 /*
  * UpdateAction
  */
-func TestUpdateActionShouldThrowAnErrorWhenTheJobnameArgumentIsMissing(t *testing.T) {
+func TestUpdateActionShouldThrowAnErrorWhenTheJobnameBaseArgumentIsMissing(t *testing.T) {
 	mockedExitStatus = 0
 	commander = TestCommander{}
 
@@ -75,7 +76,7 @@ func TestUpdateActionShouldThrowAnErrorWhenTheJobnameArgumentIsMissing(t *testin
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'jobname'")
+	assert.EqualError(t, err, "unspecified flag 'jobname-base'")
 }
 
 func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreMissing(t *testing.T) {
@@ -84,7 +85,7 @@ func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("jobname", "Job A", "")
+	set.String("jobname-base", "Job A", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
 
@@ -97,7 +98,7 @@ func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("jobname", "Job A", "")
+	set.String("jobname-base", "Job A", "")
 	set.String("filename", "file.jar", "")
 	set.String("remote-filename", "http://www.ing.com/flink-job.jar", "")
 	context := cli.NewContext(&app, &set, nil)
@@ -112,7 +113,7 @@ func TestUpdateActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("jobname", "Job A", "")
+	set.String("jobname-base", "Job A", "")
 	set.String("filename", "file.jar", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
