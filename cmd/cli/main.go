@@ -31,13 +31,13 @@ func DeployAction(c *cli.Context) error {
 		deploy.runArgs = runArgs
 	}
 
-	filename := c.String("filename")
-	remoteFilename := c.String("remote-filename")
+	filename := c.String("file-name")
+	remoteFilename := c.String("remote-file-name")
 	if len(filename) == 0 && len(remoteFilename) == 0 {
-		return cli.NewExitError("both flags 'filename' and 'remote-filename' unspecified", -1)
+		return cli.NewExitError("both flags 'file-name' and 'remote-file-name' unspecified", -1)
 	}
 	if len(filename) > 0 && len(remoteFilename) > 0 {
-		return cli.NewExitError("both flags 'filename' and 'remote-filename' specified, only one allowed", -1)
+		return cli.NewExitError("both flags 'file-name' and 'remote-file-name' specified, only one allowed", -1)
 	}
 
 	if len(filename) > 0 {
@@ -75,9 +75,9 @@ func DeployAction(c *cli.Context) error {
 func UpdateAction(c *cli.Context) error {
 	update := UpdateJob{}
 
-	jobNameBase := c.String("jobname-base")
+	jobNameBase := c.String("job-name-base")
 	if len(jobNameBase) == 0 {
-		return cli.NewExitError("unspecified flag 'jobname-base'", -1)
+		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
 	} else {
 		update.jobNameBase = jobNameBase
 	}
@@ -85,13 +85,13 @@ func UpdateAction(c *cli.Context) error {
 	if len(runArgs) > 0 {
 		update.runArgs = runArgs
 	}
-	filename := c.String("filename")
-	remoteFilename := c.String("remote-filename")
+	filename := c.String("file-name")
+	remoteFilename := c.String("remote-file-name")
 	if len(filename) == 0 && len(remoteFilename) == 0 {
-		return cli.NewExitError("both flags 'filename' and 'remote-filename' unspecified", -1)
+		return cli.NewExitError("both flags 'file-name' and 'remote-file-name' unspecified", -1)
 	}
 	if len(filename) > 0 && len(remoteFilename) > 0 {
-		return cli.NewExitError("both flags 'filename' and 'remote-filename' specified, only one allowed", -1)
+		return cli.NewExitError("both flags 'file-name' and 'remote-file-name' specified, only one allowed", -1)
 	}
 	if len(filename) > 0 {
 		update.localFilename = filename
@@ -127,47 +127,47 @@ func UpdateAction(c *cli.Context) error {
 func QueryAction(c *cli.Context) error {
 	query := Query{}
 
-	jobName := c.String("jobname")
+	jobName := c.String("job-name")
 	if len(jobName) == 0 {
-		return cli.NewExitError("unspecified flag 'jobname'", -1)
+		return cli.NewExitError("unspecified flag 'job-name'", -1)
 	} else {
 		query.jobName = jobName
 	}
-	filename := c.String("filename")
+	filename := c.String("file-name")
 	if len(filename) == 0 {
-		return cli.NewExitError("unspecified flag 'filename'", -1)
+		return cli.NewExitError("unspecified flag 'file-name'", -1)
 	} else {
 		query.filename = filename
 	}
-	mainClass := c.String("mainClass")
+	mainClass := c.String("main-class")
 	if len(mainClass) == 0 {
-		return cli.NewExitError("unspecified flag 'mainClass'", -1)
+		return cli.NewExitError("unspecified flag 'main-class'", -1)
 	} else {
 		query.mainClass = mainClass
 	}
-	highAvailability := c.String("highAvailability")
+	highAvailability := c.String("high-availability")
 	if len(highAvailability) == 0 {
-		return cli.NewExitError("unspecified flag 'highAvailability'", -1)
+		return cli.NewExitError("unspecified flag 'high-availability'", -1)
 	} else if highAvailability != "zookeeper" && highAvailability != "none" {
-		return cli.NewExitError("unknown value for flag 'highAvailability'. Allowed values: zookeeper/none", -1)
+		return cli.NewExitError("unknown value for flag 'high-availability'. Allowed values: zookeeper/none", -1)
 	} else {
 		query.highAvailability = filename
 	}
-	zookeeperQuorum := c.String("zookeeperQuorum")
+	zookeeperQuorum := c.String("zookeeper-quorum")
 	if highAvailability == "zookeeper" && len(zookeeperQuorum) == 0 {
-		return cli.NewExitError("unspecified flag 'zookeeperQuorum'", -1)
+		return cli.NewExitError("unspecified flag 'zookeeper-quorum'", -1)
 	} else {
 		query.zookeeperQuorum = zookeeperQuorum
 	}
-	jobmanagerAddress := c.String("jobmanagerAddress")
+	jobmanagerAddress := c.String("jobmanager-address")
 	if highAvailability == "none" && len(jobmanagerAddress) == 0 {
-		return cli.NewExitError("unspecified flag 'jobmanagerAddress'", -1)
+		return cli.NewExitError("unspecified flag 'jobmanager-address'", -1)
 	} else {
 		query.jobManagerRPCAddress = jobmanagerAddress
 	}
-	jobmanagerPort := c.Int("jobmanagerPort")
+	jobmanagerPort := c.Int("jobmanager-port")
 	if highAvailability == "none" && jobmanagerPort <= 0 {
-		return cli.NewExitError("unspecified flag 'jobmanagerPort'", -1)
+		return cli.NewExitError("unspecified flag 'jobmanager-port'", -1)
 	} else {
 		query.jobManagerRPCPort = jobmanagerPort
 	}
@@ -190,7 +190,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "flink-deployer"
 	app.Description = "A Go command-line utility to facilitate deployments to Apache Flink"
-	app.Version = "0.0.1"
+	app.Version = "0.1.0"
 
 	app.Commands = []cli.Command{
 		{
@@ -205,11 +205,11 @@ func main() {
 			Usage:   "deploy the JAR to the job manager",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "filename, f",
+					Name:  "file-name, fn",
 					Usage: "The complete name of the job JAR file",
 				},
 				cli.StringFlag{
-					Name:  "remote-filename, rf",
+					Name:  "remote-file-name, rfn",
 					Usage: "The location of a remote job JAR file to be downloaded",
 				},
 				cli.StringFlag{
@@ -225,11 +225,11 @@ func main() {
 					Usage: "The arguments to pass to the jar execution",
 				},
 				cli.StringFlag{
-					Name:  "savepoint-path, s",
+					Name:  "savepoint-path, sp",
 					Usage: "The path to the savepoint to restore from",
 				},
 				cli.BoolFlag{
-					Name:  "allow-non-restorable-state, a",
+					Name:  "allow-non-restorable-state, anrs",
 					Usage: "Allow non restored savepoint state in case an operator has been removed from the job.",
 				},
 			},
@@ -241,15 +241,15 @@ func main() {
 			Usage:   "Update a running job by creating a savepoint, stopping the job and deploying the new version",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "jobname-base, jb",
+					Name:  "job-name-base, jnb",
 					Usage: "The base name of the job to update",
 				},
 				cli.StringFlag{
-					Name:  "filename, f",
+					Name:  "file-name, fn",
 					Usage: "The complete name of the job JAR file",
 				},
 				cli.StringFlag{
-					Name:  "remote-filename, rf",
+					Name:  "remote-file-name, rfn",
 					Usage: "The location of a remote job JAR file to be downloaded",
 				},
 				cli.StringFlag{
@@ -269,7 +269,7 @@ func main() {
 					Usage: "The path to the directory where Flink stores all savepoints",
 				},
 				cli.BoolFlag{
-					Name:  "allow-non-restorable-state, a",
+					Name:  "allow-non-restorable-state, anrs",
 					Usage: "The savepoint directory to restore a savepoint from",
 				},
 			},
@@ -281,15 +281,15 @@ func main() {
 			Usage:   "run a query against a job's state",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "jobname, j",
+					Name:  "job-name, jn",
 					Usage: "The name of the job to update",
 				},
 				cli.StringFlag{
-					Name:  "filename, f",
+					Name:  "file-name, fn",
 					Usage: "The complete name of the job JAR file",
 				},
 				cli.StringFlag{
-					Name:  "remote-filename, rf",
+					Name:  "remote-file-name, rfn",
 					Usage: "The location of a remote job JAR file to be downloaded",
 				},
 				cli.StringFlag{
@@ -297,23 +297,23 @@ func main() {
 					Usage: "The API token for the remote address of the a remote file",
 				},
 				cli.StringFlag{
-					Name:  "mainClass, m",
+					Name:  "main-class, mc",
 					Usage: "The package and class name of the main class",
 				},
 				cli.StringFlag{
-					Name:  "highAvailability, ha",
+					Name:  "high-availability, ha",
 					Usage: "Which high availability mode to use (zookeeper/none)",
 				},
 				cli.StringFlag{
-					Name:  "zookeeperQuorum, zq",
+					Name:  "zookeeper-quorum, zq",
 					Usage: "Comma separated list of zookeeper nodes (host:port,host:port)",
 				},
 				cli.StringFlag{
-					Name:  "jobmanagerAddress, ja",
+					Name:  "jobmanager-address, ja",
 					Usage: "The Job Manager RPC address to use when high availability is none",
 				},
 				cli.IntFlag{
-					Name:  "jobmanagerPort, jp",
+					Name:  "jobmanager-port, jp",
 					Usage: "The Job Manager RPC port to use when high availability is none",
 				},
 			},
