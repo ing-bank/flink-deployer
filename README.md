@@ -1,4 +1,4 @@
-https://api.travis-ci.org/ing-bank/flink-deployer.svg?branch=master
+[![Build Status](https://travis-ci.org/ing-bank/flink-deployer.svg?branch=master)](https://travis-ci.org/ing-bank/flink-deployer)
 
 # Flink-deployer
 
