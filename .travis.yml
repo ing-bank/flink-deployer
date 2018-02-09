@@ -2,3 +2,9 @@ language: go
 
 go:
   - 1.9.3
+
+script:
+  - go test ./cmd/cli -coverprofile=cover.out
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
