@@ -1,12 +1,13 @@
 package main
 
 import (
-	"regexp"
 	"errors"
 	"fmt"
 	"log"
-	"github.com/spf13/afero"
+	"regexp"
 	"strings"
+
+	"github.com/spf13/afero"
 )
 
 func RetrieveLatestSavepoint(dir string) (string, error) {
@@ -70,24 +71,24 @@ func CreateSavepoint(jobId string) (string, error) {
 }
 
 type UpdateJob struct {
-	jobName                 string
+	jobNameBase             string
 	runArgs                 string
 	localFilename           string
 	remoteFilename          string
-	apiToken								string
+	apiToken                string
 	jarArgs                 string
-	savepointDirectory			string
+	savepointDirectory      string
 	allowNonRestorableState bool
 }
 
 func (u UpdateJob) execute() ([]byte, error) {
-	if len(u.jobName) == 0 {
-		return nil, errors.New("unspecified argument 'jobName'")
+	if len(u.jobNameBase) == 0 {
+		return nil, errors.New("unspecified argument 'jobNameBase'")
 	}
 
-	log.Printf("starting job update for %v\n", u.jobName)
+	log.Printf("starting job update for base name: %v\n", u.jobNameBase)
 
-	jobIds, err := RetrieveRunningJobIds(u.jobName)
+	jobIds, err := RetrieveRunningJobIds(u.jobNameBase)
 	if err != nil {
 		log.Printf("Retrieving the running jobs failed: %v\n", err)
 		return nil, err
@@ -97,13 +98,13 @@ func (u UpdateJob) execute() ([]byte, error) {
 		runArgs:                 u.runArgs,
 		localFilename:           u.localFilename,
 		remoteFilename:          u.remoteFilename,
-		apiToken:								 u.apiToken,
+		apiToken:                u.apiToken,
 		jarArgs:                 u.jarArgs,
 		allowNonRestorableState: u.allowNonRestorableState,
 	}
 	switch len(jobIds) {
 	case 0:
-		log.Printf("No instance running for %v. Using last available savepoint\n", u.jobName)
+		log.Printf("No instance running for job name base \"%v\". Using last available savepoint\n", u.jobNameBase)
 
 		if len(u.savepointDirectory) == 0 {
 			return nil, errors.New("cannot retrieve the latest savepoint without specifying the savepoint directory")
@@ -119,7 +120,7 @@ func (u UpdateJob) execute() ([]byte, error) {
 			deploy.savepointPath = latestSavepoint
 		}
 	case 1:
-		log.Printf("Found exactly 1 job named %v\n", u.jobName)
+		log.Printf("Found exactly 1 job with base name: %v\n", u.jobNameBase)
 		jobId := jobIds[0]
 
 		savepoint, err := CreateSavepoint(jobId)
@@ -131,7 +132,7 @@ func (u UpdateJob) execute() ([]byte, error) {
 
 		CancelJob(jobId)
 	default:
-		return nil, fmt.Errorf("%v has %v instances running", u.jobName, len(jobIds))
+		return nil, fmt.Errorf("Jobname base \"%v\" has %v instances running", u.jobNameBase, len(jobIds))
 	}
 
 	return deploy.execute()

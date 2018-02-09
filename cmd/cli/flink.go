@@ -1,10 +1,10 @@
 package main
 
 import (
-	"strings"
 	"errors"
-	"regexp"
 	"log"
+	"regexp"
+	"strings"
 )
 
 func ExtractJobs(output string) map[string][]string {
@@ -25,7 +25,7 @@ func ExtractJobs(output string) map[string][]string {
 	return jobs
 }
 
-func RetrieveRunningJobIds(jobName string) ([]string, error) {
+func RetrieveRunningJobIds(jobNameBase string) ([]string, error) {
 	out, err := commander.CombinedOutput("flink", "list", "-r")
 	if err != nil {
 		return nil, err
@@ -33,12 +33,19 @@ func RetrieveRunningJobIds(jobName string) ([]string, error) {
 
 	output := string(out)
 	if strings.Contains(output, "No running jobs") {
-		log.Printf("No running job found for name %v. Continuing with deploy\n", jobName)
+		log.Printf("No running job found for base name %v. Continuing with deploy\n", jobNameBase)
 		return nil, nil
 	} else if strings.Contains(output, "Running/Restarting Jobs") {
 		jobs := ExtractJobs(output)
 
-		return jobs[jobName], nil
+		// Extract all entries in jobs map with jobname that is prepended by jobNameBase
+		var jobIds []string
+		for jobName, jobIDList := range jobs {
+			if strings.HasPrefix(jobName, jobNameBase) {
+				jobIds = append(jobIds, jobIDList...)
+			}
+		}
+		return jobIds, nil
 	} else {
 		return nil, errors.New("flink list seemed to have failed")
 	}

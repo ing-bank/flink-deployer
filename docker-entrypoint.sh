@@ -2,7 +2,7 @@
 
 # Function that modifies the flink configuration file according to the job manager deployment strategy
 function generateConfigurationFile {
-    envsubst < /conf/flink-conf-template.yaml > ${FLINK_HOME}/conf/flink-conf.yaml
+    envsubst < /flink-deployer/conf/flink-conf-template.yaml > ${FLINK_HOME}/conf/flink-conf.yaml
 
     if [ ${HIGH_AVAILABILITY} == "zookeeper" ]; then
         sed -i -e 's/jobmanager.rpc.address/#jobmanager.rpc.address/g' ${FLINK_HOME}/conf/flink-conf.yaml
@@ -14,4 +14,5 @@ function generateConfigurationFile {
 
 generateConfigurationFile
 
-/flink-deployer/cli $FLINK_DEPLOY_OPERATION -j "$FLINK_JOB_NAME" --rf "$FLINK_REMOTE_FILE" --at "$GITLAB_API_TOKEN" --ra "$FLINK_RUN_ARGS" --ja "$FLINK_JAR_ARGS" --sd "$FLINK_SAVEPOINT_DIR"
+echo "Running cli with command: $@"
+exec /flink-deployer/cli "$@"

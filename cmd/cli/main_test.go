@@ -1,10 +1,11 @@
 package main
 
 import (
-	"testing"
-	"github.com/urfave/cli"
-	"github.com/stretchr/testify/assert"
 	"flag"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli"
 )
 
 /*
@@ -32,7 +33,7 @@ func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 	context := cli.NewContext(&app, &set, nil)
 	err := DeployAction(context)
 
-	assert.EqualError(t, err, "both flags 'filename' and 'remote-filename' unspecified")
+	assert.EqualError(t, err, "both flags 'file-name' and 'remote-file-name' unspecified")
 }
 
 func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreSet(t *testing.T) {
@@ -41,12 +42,12 @@ func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
-	set.String("remote-filename", "http://www.ing.com/flink-job.jar", "")
+	set.String("file-name", "file.jar", "")
+	set.String("remote-file-name", "http://www.ing.com/flink-job.jar", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := DeployAction(context)
 
-	assert.EqualError(t, err, "both flags 'filename' and 'remote-filename' specified, only one allowed")
+	assert.EqualError(t, err, "both flags 'file-name' and 'remote-file-name' specified, only one allowed")
 }
 
 func TestDeployActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
@@ -55,7 +56,7 @@ func TestDeployActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
+	set.String("file-name", "file.jar", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := DeployAction(context)
 
@@ -65,17 +66,17 @@ func TestDeployActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 /*
  * UpdateAction
  */
-func TestUpdateActionShouldThrowAnErrorWhenTheJobnameArgumentIsMissing(t *testing.T) {
+func TestUpdateActionShouldThrowAnErrorWhenTheJobnameBaseArgumentIsMissing(t *testing.T) {
 	mockedExitStatus = 0
 	commander = TestCommander{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
+	set.String("file-name", "file.jar", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'jobname'")
+	assert.EqualError(t, err, "unspecified flag 'job-name-base'")
 }
 
 func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreMissing(t *testing.T) {
@@ -84,11 +85,11 @@ func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("jobname", "Job A", "")
+	set.String("job-name-base", "Job A", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
 
-	assert.EqualError(t, err, "both flags 'filename' and 'remote-filename' unspecified")
+	assert.EqualError(t, err, "both flags 'file-name' and 'remote-file-name' unspecified")
 }
 
 func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreSet(t *testing.T) {
@@ -97,13 +98,13 @@ func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("jobname", "Job A", "")
-	set.String("filename", "file.jar", "")
-	set.String("remote-filename", "http://www.ing.com/flink-job.jar", "")
+	set.String("job-name-base", "Job A", "")
+	set.String("file-name", "file.jar", "")
+	set.String("remote-file-name", "http://www.ing.com/flink-job.jar", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
 
-	assert.EqualError(t, err, "both flags 'filename' and 'remote-filename' specified, only one allowed")
+	assert.EqualError(t, err, "both flags 'file-name' and 'remote-file-name' specified, only one allowed")
 }
 
 func TestUpdateActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
@@ -112,8 +113,8 @@ func TestUpdateActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("jobname", "Job A", "")
-	set.String("filename", "file.jar", "")
+	set.String("job-name-base", "Job A", "")
+	set.String("file-name", "file.jar", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
 
@@ -129,11 +130,11 @@ func TestQueryActionShouldThrowAnErrorWhenTheJobnameArgumentIsMissing(t *testing
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
+	set.String("file-name", "file.jar", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'jobname'")
+	assert.EqualError(t, err, "unspecified flag 'job-name'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenTheFilenameArgumentIsMissing(t *testing.T) {
@@ -142,11 +143,11 @@ func TestQueryActionShouldThrowAnErrorWhenTheFilenameArgumentIsMissing(t *testin
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("jobname", "Job A", "")
+	set.String("job-name", "Job A", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'filename'")
+	assert.EqualError(t, err, "unspecified flag 'file-name'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenTheMainClassArgumentIsMissing(t *testing.T) {
@@ -155,12 +156,12 @@ func TestQueryActionShouldThrowAnErrorWhenTheMainClassArgumentIsMissing(t *testi
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
-	set.String("jobname", "Job A", "")
+	set.String("file-name", "file.jar", "")
+	set.String("job-name", "Job A", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'mainClass'")
+	assert.EqualError(t, err, "unspecified flag 'main-class'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenTheHighAvailabilityArgumentIsMissing(t *testing.T) {
@@ -169,13 +170,13 @@ func TestQueryActionShouldThrowAnErrorWhenTheHighAvailabilityArgumentIsMissing(t
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
-	set.String("jobname", "Job A", "")
-	set.String("mainClass", "com.ing.QueryState", "")
+	set.String("file-name", "file.jar", "")
+	set.String("job-name", "Job A", "")
+	set.String("main-class", "com.ing.QueryState", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'highAvailability'")
+	assert.EqualError(t, err, "unspecified flag 'high-availability'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenHAIsZookeeperAndTheQourumArgumentIsMissing(t *testing.T) {
@@ -184,14 +185,14 @@ func TestQueryActionShouldThrowAnErrorWhenHAIsZookeeperAndTheQourumArgumentIsMis
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
-	set.String("jobname", "Job A", "")
-	set.String("mainClass", "com.ing.QueryState", "")
-	set.String("highAvailability", "zookeeper", "")
+	set.String("file-name", "file.jar", "")
+	set.String("job-name", "Job A", "")
+	set.String("main-class", "com.ing.QueryState", "")
+	set.String("high-availability", "zookeeper", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'zookeeperQuorum'")
+	assert.EqualError(t, err, "unspecified flag 'zookeeper-quorum'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenHAIsNoneAndTheJobmanagerAddressIsMissing(t *testing.T) {
@@ -200,14 +201,14 @@ func TestQueryActionShouldThrowAnErrorWhenHAIsNoneAndTheJobmanagerAddressIsMissi
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
-	set.String("jobname", "Job A", "")
-	set.String("mainClass", "com.ing.QueryState", "")
-	set.String("highAvailability", "none", "")
+	set.String("file-name", "file.jar", "")
+	set.String("job-name", "Job A", "")
+	set.String("main-class", "com.ing.QueryState", "")
+	set.String("high-availability", "none", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'jobmanagerAddress'")
+	assert.EqualError(t, err, "unspecified flag 'jobmanager-address'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenHAIsNoneAndTheJobmanagerPortIsMissing(t *testing.T) {
@@ -216,15 +217,15 @@ func TestQueryActionShouldThrowAnErrorWhenHAIsNoneAndTheJobmanagerPortIsMissing(
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
-	set.String("jobname", "Job A", "")
-	set.String("mainClass", "com.ing.QueryState", "")
-	set.String("highAvailability", "none", "")
-	set.String("jobmanagerAddress", "flink", "")
+	set.String("file-name", "file.jar", "")
+	set.String("job-name", "Job A", "")
+	set.String("main-class", "com.ing.QueryState", "")
+	set.String("high-availability", "none", "")
+	set.String("jobmanager-address", "flink", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'jobmanagerPort'")
+	assert.EqualError(t, err, "unspecified flag 'jobmanager-port'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
@@ -233,12 +234,12 @@ func TestQueryActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("filename", "file.jar", "")
-	set.String("jobname", "Job A", "")
-	set.String("mainClass", "com.ing.QueryState", "")
-	set.String("highAvailability", "none", "")
-	set.String("jobmanagerAddress", "flink", "")
-	set.Int("jobmanagerPort", 6123, "")
+	set.String("file-name", "file.jar", "")
+	set.String("job-name", "Job A", "")
+	set.String("main-class", "com.ing.QueryState", "")
+	set.String("high-availability", "none", "")
+	set.String("jobmanager-address", "flink", "")
+	set.Int("jobmanager-port", 6123, "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 

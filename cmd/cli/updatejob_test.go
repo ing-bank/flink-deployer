@@ -2,8 +2,9 @@ package main
 
 import (
 	"testing"
-	"github.com/stretchr/testify/assert"
+
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 )
 
 /*
@@ -141,7 +142,7 @@ func TestCreateSavepointShouldReturnTheSavepointPathIfAllGoesWell(t *testing.T) 
  * UpdateJob
  */
 
-func TestUpdateJobShouldReturnAnErrorWhenTheJobNameIsUndefined(t *testing.T) {
+func TestUpdateJobShouldReturnAnErrorWhenTheJobNameBaseIsUndefined(t *testing.T) {
 	mockedStdout = `No running jobs`
 	mockedExitStatus = 0
 	commander = TestCommander{}
@@ -151,7 +152,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheJobNameIsUndefined(t *testing.T) {
 	out, err := update.execute()
 
 	assert.Nil(t, out)
-	assert.EqualError(t, err, "unspecified argument 'jobName'")
+	assert.EqualError(t, err, "unspecified argument 'jobNameBase'")
 }
 
 func TestUpdateJobShouldReturnAnErrorWhenTheSavepointDirectoryIsUndefined(t *testing.T) {
@@ -160,7 +161,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheSavepointDirectoryIsUndefined(t *tes
 	commander = TestCommander{}
 
 	update := UpdateJob{
-		jobName: "Job A",
+		jobNameBase: "Job A",
 	}
 
 	out, err := update.execute()
@@ -189,7 +190,7 @@ func TestUpdateJobShouldExecuteCorrectlyWhenEverythingGoesFine(t *testing.T) {
 	commander = TestCommander{}
 
 	update := UpdateJob{
-		jobName:                 "Job A",
+		jobNameBase:             "Job A",
 		runArgs:                 "-p 1 -d",
 		localFilename:           "file.jar",
 		jarArgs:                 "--kafka.bootstrapServers kafka:9092",
@@ -223,7 +224,7 @@ func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.
 	commander = TestCommander{}
 
 	update := UpdateJob{
-		jobName:                 "Job A",
+		jobNameBase:             "Job A",
 		runArgs:                 "-p 1 -d",
 		localFilename:           "file.jar",
 		jarArgs:                 "--kafka.bootstrapServers kafka:9092",
@@ -233,5 +234,5 @@ func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.
 	out, err := update.execute()
 
 	assert.Nil(t, out)
-	assert.EqualError(t, err, "Job A has 2 instances running")
+	assert.EqualError(t, err, "Jobname base \"Job A\" has 2 instances running")
 }

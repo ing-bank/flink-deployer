@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 /*
@@ -34,7 +35,6 @@ func TestExtractJobsShouldReturnAllJobIdsForDistinctJobNames(t *testing.T) {
 	assert.Equal(t, 2, len(val))
 	assert.Equal(t, []string{"jobid1", "jobid3"}, val)
 }
-
 
 /*
  * RetrieveRunningJobIds
@@ -79,6 +79,21 @@ func TestRetrieveRunningJobIdsShouldReturnASliceWithAllJobIdsForTheSpecifiedJobN
 	assert.Equal(t, 2, len(jobs))
 }
 
+func TestRetrieveRunningJobIdsShouldReturnASliceWithAllJobIdsForTheSpecifiedJobNameBase(t *testing.T) {
+	mockedStdout = `
+	------------------ Running/Restarting Jobs -------------------
+	15.11.2017 12:23:37 : jobid1 : Job A (RUNNING)
+	15.11.2017 12:23:37 : jobid2 : Job B (RUNNING)
+	15.11.2017 12:20:37 : jobid3 : Job A (RUNNING)
+	--------------------------------------------------------------
+	`
+	mockedExitStatus = 0
+	commander = TestCommander{}
+
+	jobs, _ := RetrieveRunningJobIds("Job")
+
+	assert.Equal(t, 3, len(jobs))
+}
 
 func TestRetrieveRunningJobIdsShouldReturnAnErrorWhenAnUnknownResponseIsReturned(t *testing.T) {
 	mockedStdout = "Major error"
