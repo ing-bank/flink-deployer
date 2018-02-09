@@ -1,3 +1,5 @@
+https://api.travis-ci.org/ing-bank/flink-deployer.svg?branch=master
+
 # Flink-deployer
 
 A Go command-line utility to facilitate deployments to Apache Flink.
