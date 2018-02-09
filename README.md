@@ -1,8 +1,7 @@
 [![Build Status](https://travis-ci.org/ing-bank/flink-deployer.svg?branch=master)](https://travis-ci.org/ing-bank/flink-deployer)
 [![codecov.io](http://codecov.io/github/ing-bank/flink-deployer/coverage.svg?branch=master)](https://codecov.io/gh/ing-bank/flink-deployer?branch=master)
-[![](https://images.microbadger.com/badges/image/nielsdenissen/flink-deployer.svg)](https://microbadger.com/images/nielsdenissen/flink-deployer)
-[![](https://images.microbadger.com/badges/version/nielsdenissen/flink-deployer.svg)](https://microbadger.com/images/nielsdenissen/flink-deployer)
-
+[![](https://images.microbadger.com/badges/image/nielsdenissen/flink-deployer:master.svg)](https://microbadger.com/images/nielsdenissen/flink-deployer:master)
+[![](https://images.microbadger.com/badges/version/nielsdenissen/flink-deployer:master.svg)](https://microbadger.com/images/nielsdenissen/flink-deployer:master)
 
 # Flink-deployer
 
