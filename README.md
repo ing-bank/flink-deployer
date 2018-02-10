@@ -1,3 +1,8 @@
+[![Build Status](https://travis-ci.org/ing-bank/flink-deployer.svg?branch=master)](https://travis-ci.org/ing-bank/flink-deployer)
+[![codecov.io](http://codecov.io/github/ing-bank/flink-deployer/coverage.svg?branch=master)](https://codecov.io/gh/ing-bank/flink-deployer?branch=master)
+[![](https://images.microbadger.com/badges/image/nielsdenissen/flink-deployer:master.svg)](https://microbadger.com/images/nielsdenissen/flink-deployer:master)
+[![](https://images.microbadger.com/badges/version/nielsdenissen/flink-deployer:master.svg)](https://microbadger.com/images/nielsdenissen/flink-deployer:master)
+
 # Flink-deployer
 
 A Go command-line utility to facilitate deployments to Apache Flink.
@@ -40,6 +45,10 @@ Build the Docker container:
 
 `go test -coverprofile=cover.out && go tool cover`
 
-## Copyright
+# Docker image
+
+A docker image for this repo is available from the docker hub: `nielsdenissen/flink-deployer`
+
+# Copyright
 
 All copyright of project flink-job-deployer are held by Marc Rooding and Niels Denissen, 2017-2018.
