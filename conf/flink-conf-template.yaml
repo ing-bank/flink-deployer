@@ -111,3 +111,6 @@ high-availability.zookeeper.path.root: /flink
 
 # The cluster-id ZooKeeper node, under which all required coordination data for a cluster is placed.
 high-availability.cluster-id: /flink_cluster
+
+# Increase timeout before failing a deploy to the cluster from 60s to 120s
+akka.client.timeout: 120s
