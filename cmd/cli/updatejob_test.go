@@ -43,6 +43,16 @@ func TestRetrieveLatestSavepointShouldRemoveTheTrailingSlashFromTheSavepointDire
 	assert.Nil(t, err)
 }
 
+func TestRetrieveLatestSavepointShouldReturnAnErrorWhenDirEmpty(t *testing.T) {
+	filesystem = afero.NewMemMapFs()
+	filesystem.Mkdir("/savepoints/", 0755)
+
+	files, err := RetrieveLatestSavepoint("/savepoints")
+
+	assert.Equal(t, "", files)
+	assert.EqualError(t, err, "No savepoints present in directory: /savepoints")
+}
+
 /*
  * ExtractSavepointPath
  */

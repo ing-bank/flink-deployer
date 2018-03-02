@@ -20,6 +20,10 @@ func RetrieveLatestSavepoint(dir string) (string, error) {
 		return "", err
 	}
 
+	if len(files) == 0 {
+		return "", errors.New("No savepoints present in directory: " + dir)
+	}
+
 	var newestFile string
 	var newestTime int64 = 0
 	for _, f := range files {
