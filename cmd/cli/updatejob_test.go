@@ -94,7 +94,7 @@ func TestCreateSavepointShouldReturnAnErrorWhenCreatingTheSavepointFails(t *test
 	mockedExitStatus = -1
 	commander = TestCommander{}
 
-	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34")
+	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34", "/dir/")
 
 	assert.Equal(t, "", out)
 	assert.EqualError(t, err, "exit status 255")
@@ -113,7 +113,7 @@ func TestCreateSavepointShouldReturnAnErrorWhenExtractingTheSavepointPathFails(t
 	mockedExitStatus = 0
 	commander = TestCommander{}
 
-	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34")
+	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34", "/data/flink/savepoints")
 
 	assert.Equal(t, "", out)
 	assert.EqualError(t, err, "multiple matches for savepoint found")
@@ -132,7 +132,7 @@ func TestCreateSavepointShouldReturnTheSavepointPathIfAllGoesWell(t *testing.T) 
 	commander = TestCommander{}
 	filesystem = afero.NewMemMapFs()
 
-	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34")
+	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34", "/data/flink/savepoints")
 
 	assert.Equal(t, "/data/flink/savepoints/savepoint-683b3f-59401d30cfc4", out)
 	assert.Nil(t, err)
@@ -167,7 +167,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheSavepointDirectoryIsUndefined(t *tes
 	out, err := update.execute()
 
 	assert.Nil(t, out)
-	assert.EqualError(t, err, "cannot retrieve the latest savepoint without specifying the savepoint directory")
+	assert.EqualError(t, err, "unspecified argument 'savepointDirectory'")
 }
 
 func TestUpdateJobShouldExecuteCorrectlyWhenEverythingGoesFine(t *testing.T) {
@@ -194,6 +194,7 @@ func TestUpdateJobShouldExecuteCorrectlyWhenEverythingGoesFine(t *testing.T) {
 		runArgs:                 "-p 1 -d",
 		localFilename:           "file.jar",
 		jarArgs:                 "--kafka.bootstrapServers kafka:9092",
+		savepointDirectory:      "/data/flink/savepoints",
 		allowNonRestorableState: false,
 	}
 
@@ -228,6 +229,7 @@ func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.
 		runArgs:                 "-p 1 -d",
 		localFilename:           "file.jar",
 		jarArgs:                 "--kafka.bootstrapServers kafka:9092",
+		savepointDirectory:      "/data/flink/savepoints",
 		allowNonRestorableState: false,
 	}
 

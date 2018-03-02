@@ -151,15 +151,23 @@ func TestListJobsShouldReturnAnOverviewOfJobs(t *testing.T) {
 func TestSavepointShouldReturnAnErrorForEmptyJobIds(t *testing.T) {
 	mockedStdout = ""
 	commander = TestCommander{}
-	_, err := Savepoint("")
+	_, err := Savepoint("", "/dir/")
 
 	assert.EqualError(t, err, "unspecified argument 'jobId'")
+}
+
+func TestSavepointShouldReturnAnErrorForEmptySavepointTargetDir(t *testing.T) {
+	mockedStdout = ""
+	commander = TestCommander{}
+	_, err := Savepoint("jobId", "")
+
+	assert.EqualError(t, err, "unspecified argument 'savepointTargetDir'")
 }
 
 func TestSavepointShouldCreateASavepoint(t *testing.T) {
 	mockedStdout = "Job saved"
 	commander = TestCommander{}
-	out, _ := Savepoint("jobid1")
+	out, _ := Savepoint("jobid1", "/dir/")
 
 	assert.Equal(t, mockedStdout, string(out))
 }

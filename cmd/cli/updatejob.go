@@ -52,8 +52,8 @@ func ExtractSavepointPath(output string) (string, error) {
 	}
 }
 
-func CreateSavepoint(jobId string) (string, error) {
-	out, err := Savepoint(jobId)
+func CreateSavepoint(jobId string, savepointTargetDir string) (string, error) {
+	out, err := Savepoint(jobId, savepointTargetDir)
 	if err != nil {
 		return "", err
 	}
@@ -85,8 +85,11 @@ func (u UpdateJob) execute() ([]byte, error) {
 	if len(u.jobNameBase) == 0 {
 		return nil, errors.New("unspecified argument 'jobNameBase'")
 	}
+	if len(u.savepointDirectory) == 0 {
+		return nil, errors.New("unspecified argument 'savepointDirectory'")
+	}
 
-	log.Printf("starting job update for base name: %v\n", u.jobNameBase)
+	log.Printf("starting job update for base name: %v, and savepoint dir: %v\n", u.jobNameBase, u.savepointDirectory)
 
 	jobIds, err := RetrieveRunningJobIds(u.jobNameBase)
 	if err != nil {
@@ -123,7 +126,7 @@ func (u UpdateJob) execute() ([]byte, error) {
 		log.Printf("Found exactly 1 job with base name: %v\n", u.jobNameBase)
 		jobId := jobIds[0]
 
-		savepoint, err := CreateSavepoint(jobId)
+		savepoint, err := CreateSavepoint(jobId, u.savepointDirectory)
 		if err != nil {
 			return nil, err
 		}
