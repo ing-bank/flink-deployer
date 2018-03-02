@@ -62,7 +62,7 @@ func TestExtractSavepointPathShouldExtractPath(t *testing.T) {
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
 		You can resume your program from this savepoint with the run command.
 		`)
 
@@ -87,8 +87,8 @@ func TestExtractSavepointPathShouldReturnAnErrorIfMultiplePathsAreExtracted(t *t
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-883b3f-59401d30cfc1
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-883b3f-59401d30cfc1
 		You can resume your program from this savepoint with the run command.
 		`)
 
@@ -116,8 +116,8 @@ func TestCreateSavepointShouldReturnAnErrorWhenExtractingTheSavepointPathFails(t
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-883b3f-59401d30cfc1
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-883b3f-59401d30cfc1
 		You can resume your program from this savepoint with the run command.
 	`
 	mockedExitStatus = 0
@@ -135,7 +135,7 @@ func TestCreateSavepointShouldReturnTheSavepointPathIfAllGoesWell(t *testing.T) 
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
 		You can resume your program from this savepoint with the run command.
 	`
 	mockedExitStatus = 0
@@ -193,7 +193,7 @@ func TestUpdateJobShouldExecuteCorrectlyWhenEverythingGoesFine(t *testing.T) {
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
 		You can resume your program from this savepoint with the run command.
 	`
 	mockedExitStatus = 0
@@ -228,7 +228,7 @@ func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
 		You can resume your program from this savepoint with the run command.
 	`
 	mockedExitStatus = 0

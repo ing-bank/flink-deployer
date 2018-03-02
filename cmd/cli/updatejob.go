@@ -43,7 +43,7 @@ func RetrieveLatestSavepoint(dir string) (string, error) {
 }
 
 func ExtractSavepointPath(output string) (string, error) {
-	rgx := regexp.MustCompile("Savepoint completed. Path: file:(.*)\n")
+	rgx := regexp.MustCompile("Savepoint completed. Path: (.*)\n")
 	matches := rgx.FindAllStringSubmatch(output, -1)
 
 	switch len(matches) {
