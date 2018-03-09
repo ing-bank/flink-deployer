@@ -134,7 +134,7 @@ func TestQueryActionShouldThrowAnErrorWhenTheJobnameArgumentIsMissing(t *testing
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'job-name'")
+	assert.EqualError(t, err, "unspecified flag 'job-name-base'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenTheFilenameArgumentIsMissing(t *testing.T) {
@@ -143,7 +143,7 @@ func TestQueryActionShouldThrowAnErrorWhenTheFilenameArgumentIsMissing(t *testin
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("job-name", "Job A", "")
+	set.String("job-name-base", "Job A", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
@@ -157,70 +157,37 @@ func TestQueryActionShouldThrowAnErrorWhenTheMainClassArgumentIsMissing(t *testi
 	app := cli.App{}
 	set := flag.FlagSet{}
 	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
+	set.String("job-name-base", "Job A", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
 	assert.EqualError(t, err, "unspecified flag 'main-class'")
 }
 
-func TestQueryActionShouldThrowAnErrorWhenTheHighAvailabilityArgumentIsMissing(t *testing.T) {
+func TestQueryActionShouldThrowAnErrorWhenTheJobmanagerAddressIsMissing(t *testing.T) {
 	mockedExitStatus = 0
 	commander = TestCommander{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
 	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
+	set.String("job-name-base", "Job A", "")
 	set.String("main-class", "com.ing.QueryState", "")
-	context := cli.NewContext(&app, &set, nil)
-	err := QueryAction(context)
-
-	assert.EqualError(t, err, "unspecified flag 'high-availability'")
-}
-
-func TestQueryActionShouldThrowAnErrorWhenHAIsZookeeperAndTheQourumArgumentIsMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
-	set.String("main-class", "com.ing.QueryState", "")
-	set.String("high-availability", "zookeeper", "")
-	context := cli.NewContext(&app, &set, nil)
-	err := QueryAction(context)
-
-	assert.EqualError(t, err, "unspecified flag 'zookeeper-quorum'")
-}
-
-func TestQueryActionShouldThrowAnErrorWhenHAIsNoneAndTheJobmanagerAddressIsMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
-	set.String("main-class", "com.ing.QueryState", "")
-	set.String("high-availability", "none", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
 	assert.EqualError(t, err, "unspecified flag 'jobmanager-address'")
 }
 
-func TestQueryActionShouldThrowAnErrorWhenHAIsNoneAndTheJobmanagerPortIsMissing(t *testing.T) {
+func TestQueryActionShouldThrowAnErrorWhenTheJobmanagerPortIsMissing(t *testing.T) {
 	mockedExitStatus = 0
 	commander = TestCommander{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
 	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
+	set.String("job-name-base", "Job A", "")
 	set.String("main-class", "com.ing.QueryState", "")
-	set.String("high-availability", "none", "")
 	set.String("jobmanager-address", "flink", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
@@ -235,9 +202,8 @@ func TestQueryActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 	app := cli.App{}
 	set := flag.FlagSet{}
 	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
+	set.String("job-name-base", "Job A", "")
 	set.String("main-class", "com.ing.QueryState", "")
-	set.String("high-availability", "none", "")
 	set.String("jobmanager-address", "flink", "")
 	set.Int("jobmanager-port", 6123, "")
 	context := cli.NewContext(&app, &set, nil)

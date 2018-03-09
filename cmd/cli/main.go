@@ -127,11 +127,11 @@ func UpdateAction(c *cli.Context) error {
 func QueryAction(c *cli.Context) error {
 	query := Query{}
 
-	jobName := c.String("job-name")
-	if len(jobName) == 0 {
-		return cli.NewExitError("unspecified flag 'job-name'", -1)
+	jobNameBase := c.String("job-name-base")
+	if len(jobNameBase) == 0 {
+		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
 	} else {
-		query.jobName = jobName
+		query.jobNameBase = jobNameBase
 	}
 	filename := c.String("file-name")
 	if len(filename) == 0 {
@@ -145,28 +145,14 @@ func QueryAction(c *cli.Context) error {
 	} else {
 		query.mainClass = mainClass
 	}
-	highAvailability := c.String("high-availability")
-	if len(highAvailability) == 0 {
-		return cli.NewExitError("unspecified flag 'high-availability'", -1)
-	} else if highAvailability != "zookeeper" && highAvailability != "none" {
-		return cli.NewExitError("unknown value for flag 'high-availability'. Allowed values: zookeeper/none", -1)
-	} else {
-		query.highAvailability = filename
-	}
-	zookeeperQuorum := c.String("zookeeper-quorum")
-	if highAvailability == "zookeeper" && len(zookeeperQuorum) == 0 {
-		return cli.NewExitError("unspecified flag 'zookeeper-quorum'", -1)
-	} else {
-		query.zookeeperQuorum = zookeeperQuorum
-	}
 	jobmanagerAddress := c.String("jobmanager-address")
-	if highAvailability == "none" && len(jobmanagerAddress) == 0 {
+	if len(jobmanagerAddress) == 0 {
 		return cli.NewExitError("unspecified flag 'jobmanager-address'", -1)
 	} else {
 		query.jobManagerRPCAddress = jobmanagerAddress
 	}
 	jobmanagerPort := c.Int("jobmanager-port")
-	if highAvailability == "none" && jobmanagerPort <= 0 {
+	if jobmanagerPort <= 0 {
 		return cli.NewExitError("unspecified flag 'jobmanager-port'", -1)
 	} else {
 		query.jobManagerRPCPort = jobmanagerPort
@@ -301,20 +287,12 @@ func main() {
 					Usage: "The package and class name of the main class",
 				},
 				cli.StringFlag{
-					Name:  "high-availability, ha",
-					Usage: "Which high availability mode to use (zookeeper/none)",
-				},
-				cli.StringFlag{
-					Name:  "zookeeper-quorum, zq",
-					Usage: "Comma separated list of zookeeper nodes (host:port,host:port)",
-				},
-				cli.StringFlag{
 					Name:  "jobmanager-address, ja",
-					Usage: "The Job Manager RPC address to use when high availability is none",
+					Usage: "The Job Manager RPC address to use",
 				},
 				cli.IntFlag{
 					Name:  "jobmanager-port, jp",
-					Usage: "The Job Manager RPC port to use when high availability is none",
+					Usage: "The Job Manager RPC port to use",
 				},
 			},
 			Action: QueryAction,

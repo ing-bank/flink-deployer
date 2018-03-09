@@ -6,24 +6,22 @@ import (
 )
 
 type Query struct {
-	jobName              string
+	jobNameBase          string
 	filename             string
 	mainClass            string
-	highAvailability     string
-	zookeeperQuorum      string
 	jobManagerRPCAddress string
 	jobManagerRPCPort    int
 }
 
 func (q Query) execute() ([]byte, error) {
-	jobIds, err := RetrieveRunningJobIds(q.jobName)
+	jobIds, err := RetrieveRunningJobIds(q.jobNameBase)
 	if err != nil {
 		return nil, err
 	}
 
 	switch len(jobIds) {
 	case 0:
-		return nil, fmt.Errorf("%v is not an active running job", q.jobName)
+		return nil, fmt.Errorf("%v is not an active running job base name", q.jobNameBase)
 	case 1:
 		args := []string{}
 		args = append(args,
@@ -31,12 +29,9 @@ func (q Query) execute() ([]byte, error) {
 			q.filename,
 			q.mainClass,
 			jobIds[0],
-			q.highAvailability)
-		if q.highAvailability == "zookeeper" {
-			args = append(args, q.zookeeperQuorum)
-		} else {
-			args = append(args, q.jobManagerRPCAddress, strconv.Itoa(q.jobManagerRPCPort))
-		}
+			q.jobManagerRPCAddress,
+			strconv.Itoa(q.jobManagerRPCPort))
+
 		out, err := commander.CombinedOutput("java", args...)
 		if err != nil {
 			return nil, err
@@ -44,6 +39,6 @@ func (q Query) execute() ([]byte, error) {
 
 		return out, nil
 	default:
-		return nil, fmt.Errorf("%v has %v instances running", q.jobName, len(jobIds))
+		return nil, fmt.Errorf("%v has %v instances running", q.jobNameBase, len(jobIds))
 	}
 }
