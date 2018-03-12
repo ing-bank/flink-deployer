@@ -43,6 +43,16 @@ func TestRetrieveLatestSavepointShouldRemoveTheTrailingSlashFromTheSavepointDire
 	assert.Nil(t, err)
 }
 
+func TestRetrieveLatestSavepointShouldReturnAnErrorWhenDirEmpty(t *testing.T) {
+	filesystem = afero.NewMemMapFs()
+	filesystem.Mkdir("/savepoints/", 0755)
+
+	files, err := RetrieveLatestSavepoint("/savepoints")
+
+	assert.Equal(t, "", files)
+	assert.EqualError(t, err, "No savepoints present in directory: /savepoints")
+}
+
 /*
  * ExtractSavepointPath
  */
@@ -52,7 +62,7 @@ func TestExtractSavepointPathShouldExtractPath(t *testing.T) {
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
 		You can resume your program from this savepoint with the run command.
 		`)
 
@@ -77,8 +87,8 @@ func TestExtractSavepointPathShouldReturnAnErrorIfMultiplePathsAreExtracted(t *t
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-883b3f-59401d30cfc1
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-883b3f-59401d30cfc1
 		You can resume your program from this savepoint with the run command.
 		`)
 
@@ -94,7 +104,7 @@ func TestCreateSavepointShouldReturnAnErrorWhenCreatingTheSavepointFails(t *test
 	mockedExitStatus = -1
 	commander = TestCommander{}
 
-	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34")
+	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34", "/dir/")
 
 	assert.Equal(t, "", out)
 	assert.EqualError(t, err, "exit status 255")
@@ -106,14 +116,14 @@ func TestCreateSavepointShouldReturnAnErrorWhenExtractingTheSavepointPathFails(t
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-883b3f-59401d30cfc1
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-883b3f-59401d30cfc1
 		You can resume your program from this savepoint with the run command.
 	`
 	mockedExitStatus = 0
 	commander = TestCommander{}
 
-	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34")
+	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34", "/data/flink/savepoints")
 
 	assert.Equal(t, "", out)
 	assert.EqualError(t, err, "multiple matches for savepoint found")
@@ -125,14 +135,14 @@ func TestCreateSavepointShouldReturnTheSavepointPathIfAllGoesWell(t *testing.T) 
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
 		You can resume your program from this savepoint with the run command.
 	`
 	mockedExitStatus = 0
 	commander = TestCommander{}
 	filesystem = afero.NewMemMapFs()
 
-	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34")
+	out, err := CreateSavepoint("182b71aebf67191683b6917ce95a1f34", "/data/flink/savepoints")
 
 	assert.Equal(t, "/data/flink/savepoints/savepoint-683b3f-59401d30cfc4", out)
 	assert.Nil(t, err)
@@ -167,7 +177,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheSavepointDirectoryIsUndefined(t *tes
 	out, err := update.execute()
 
 	assert.Nil(t, out)
-	assert.EqualError(t, err, "cannot retrieve the latest savepoint without specifying the savepoint directory")
+	assert.EqualError(t, err, "unspecified argument 'savepointDirectory'")
 }
 
 func TestUpdateJobShouldExecuteCorrectlyWhenEverythingGoesFine(t *testing.T) {
@@ -183,7 +193,7 @@ func TestUpdateJobShouldExecuteCorrectlyWhenEverythingGoesFine(t *testing.T) {
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
 		You can resume your program from this savepoint with the run command.
 	`
 	mockedExitStatus = 0
@@ -194,6 +204,7 @@ func TestUpdateJobShouldExecuteCorrectlyWhenEverythingGoesFine(t *testing.T) {
 		runArgs:                 "-p 1 -d",
 		localFilename:           "file.jar",
 		jarArgs:                 "--kafka.bootstrapServers kafka:9092",
+		savepointDirectory:      "/data/flink/savepoints",
 		allowNonRestorableState: false,
 	}
 
@@ -217,7 +228,7 @@ func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.
 		Using address flink-jobmanager/172.26.0.3:6123 to connect to JobManager.
 		Triggering savepoint for job 683b3f14d75c470de0aaf2b1e83a3158.
 		Waiting for response...
-		Savepoint completed. Path: file:/data/flink/savepoints/savepoint-683b3f-59401d30cfc4
+		Savepoint completed. Path: /data/flink/savepoints/savepoint-683b3f-59401d30cfc4
 		You can resume your program from this savepoint with the run command.
 	`
 	mockedExitStatus = 0
@@ -228,6 +239,7 @@ func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.
 		runArgs:                 "-p 1 -d",
 		localFilename:           "file.jar",
 		jarArgs:                 "--kafka.bootstrapServers kafka:9092",
+		savepointDirectory:      "/data/flink/savepoints",
 		allowNonRestorableState: false,
 	}
 

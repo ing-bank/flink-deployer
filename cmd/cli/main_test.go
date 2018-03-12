@@ -115,6 +115,7 @@ func TestUpdateActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 	set := flag.FlagSet{}
 	set.String("job-name-base", "Job A", "")
 	set.String("file-name", "file.jar", "")
+	set.String("savepoint-dir", "/savepoints", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
 
