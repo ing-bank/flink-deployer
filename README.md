@@ -41,13 +41,81 @@ Build the Docker container:
 
 `go test`
 
-### Test with coverage
+Or with coverage:
 
 `go test -coverprofile=cover.out && go tool cover`
 
-# Docker image
+# Docker
 
 A docker image for this repo is available from the docker hub: `nielsdenissen/flink-deployer`
+
+# Kubernetes
+
+When running in Kubernetes (or Openshift), you'll have to deploy the container to the cluster. A reason for this is Flink will try to reroute you to the internal Kubernetes address of the cluster, which doesn't resolve from outside. Besides that it'll give you the necessary access to the stored savepoints when you're using persistent volumes to store those.
+
+Here's an example of how such a kubernetes yaml could look like:
+
+```yaml
+    apiVersion: v1
+    kind: Template
+    objects:
+    -   apiVersion: v1
+        kind: Pod
+        metadata:
+            generateName: "flink-${FLINK_JOB_ID}-deployer-"
+        spec:
+            dnsPolicy: ClusterFirst
+            restartPolicy: OnFailure
+            containers:
+            -   name: "flink-${FLINK_JOB_ID}-deployer"
+                image: "nielsdenissen/flink-deployer"
+                args:
+                - "update"
+                - "-job-name-base"
+                - "$(FLINK_JOB_NAME_BASE)"
+                - "-file-name"
+                - "/tmp/YOUR-FLINK-JAR.jar"
+                - "-run-args"
+                - "-p 2 -d -c $(MAIN_CLASS_NAME)"
+                - "-jar-args"
+                - "--kafka.bootstrapServers $(KAFKA_BOOTSTRAPSERVERS)"
+                - "-savepoint-dir"
+                - "/data/flink/savepoints/$(FLINK_JOB_ID)"
+                imagePullPolicy: Always
+                env:
+                -   name: FLINK_JOB_NAME_BASE
+                    value: "${FLINK_JOB_NAME_BASE}"
+                -   name: JOB_MANAGER_RPC_ADDRESS
+                    value: "jobmanager"
+                -   name: JOB_MANAGER_RPC_PORT
+                    value: "8081"
+                -   name: HIGH_AVAILABILITY
+                    value: "zookeeper"
+                -   name: ZOOKEEPER_QUORUM
+                    value: "zookeeper:2181"
+                -   name: KAFKA_BOOTSTRAPSERVERS
+                    value: "kafka:9092"
+                -   name: MAIN_CLASS_NAME
+                    value: "${MAIN_CLASS_NAME}"
+                -   name: FLINK_JOB_ID
+                    value: "${FLINK_JOB_ID}"
+                volumeMounts:
+                -   name: flink-data
+                    mountPath: "/data/flink"
+            volumes:
+            -   name: flink-data
+                persistentVolumeClaim:
+                    claimName: "${PVC_FLINK}"
+    parameters:
+    -   name: FLINK_JOB_ID
+        description: The ID to use for pod name and savepoint directory
+    -   name: FLINK_JOB_NAME_BASE
+        description: The job name base (you can append a version number behind this base in your actual job name)
+    -   name: MAIN_CLASS_NAME
+        description: Name of the main class to be run in the JAR
+    -   name: PVC_FLINK
+        description: The persistent volume claim name for flink.
+```
 
 # Copyright
 
