@@ -55,6 +55,7 @@ When running in Kubernetes (or Openshift), you'll have to deploy the container t
 
 Here's an example of how such a kubernetes yaml could look like:
 
+```yaml
     apiVersion: v1
     kind: Template
     objects:
@@ -114,7 +115,7 @@ Here's an example of how such a kubernetes yaml could look like:
         description: Name of the main class to be run in the JAR
     -   name: PVC_FLINK
         description: The persistent volume claim name for flink.
-
+```
 
 # Copyright
 
