@@ -65,7 +65,6 @@ Here's an example of how such a kubernetes yaml could look like:
         spec:
             dnsPolicy: ClusterFirst
             restartPolicy: OnFailure
-            terminationGracePeriodSeconds: 5
             containers:
             -   name: "flink-${FLINK_JOB_ID}-deployer"
                 image: "nielsdenissen/flink-deployer"
@@ -103,9 +102,9 @@ Here's an example of how such a kubernetes yaml could look like:
                 -   name: flink-data
                     mountPath: "/data/flink"
             volumes:
-            - name: flink-data
-            persistentVolumeClaim:
-                claimName: "${PVC_FLINK}"
+            -   name: flink-data
+                persistentVolumeClaim:
+                    claimName: "${PVC_FLINK}"
     parameters:
     -   name: FLINK_JOB_ID
         description: The ID to use for pod name and savepoint directory
