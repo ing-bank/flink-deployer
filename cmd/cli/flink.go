@@ -63,10 +63,13 @@ func ListJobs() ([]byte, error) {
 	return commander.CombinedOutput("flink", "list")
 }
 
-func Savepoint(jobId string) ([]byte, error) {
+func Savepoint(jobId string, savepointTargetDir string) ([]byte, error) {
 	if len(jobId) == 0 {
 		return nil, errors.New("unspecified argument 'jobId'")
 	}
-	log.Printf("Creating savepoint for job %v", jobId)
-	return commander.CombinedOutput("flink", "savepoint", jobId)
+	if len(savepointTargetDir) == 0 {
+		return nil, errors.New("unspecified argument 'savepointTargetDir'")
+	}
+	log.Printf("Creating savepoint for job %v at targetDir %v", jobId, savepointTargetDir)
+	return commander.CombinedOutput("flink", "savepoint", jobId, savepointTargetDir)
 }
