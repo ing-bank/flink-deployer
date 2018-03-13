@@ -9,8 +9,6 @@ type Query struct {
 	jobName              string
 	filename             string
 	mainClass            string
-	highAvailability     string
-	zookeeperQuorum      string
 	jobManagerRPCAddress string
 	jobManagerRPCPort    int
 }
@@ -31,12 +29,9 @@ func (q Query) execute() ([]byte, error) {
 			q.filename,
 			q.mainClass,
 			jobIds[0],
-			q.highAvailability)
-		if q.highAvailability == "zookeeper" {
-			args = append(args, q.zookeeperQuorum)
-		} else {
-			args = append(args, q.jobManagerRPCAddress, strconv.Itoa(q.jobManagerRPCPort))
-		}
+			q.jobManagerRPCAddress,
+			strconv.Itoa(q.jobManagerRPCPort))
+
 		out, err := commander.CombinedOutput("java", args...)
 		if err != nil {
 			return nil, err
