@@ -6,7 +6,7 @@ import (
 )
 
 type Query struct {
-	jobNameBase          string
+	jobName              string
 	filename             string
 	mainClass            string
 	jobManagerRPCAddress string
@@ -14,14 +14,14 @@ type Query struct {
 }
 
 func (q Query) execute() ([]byte, error) {
-	jobIds, err := RetrieveRunningJobIds(q.jobNameBase)
+	jobIds, err := RetrieveRunningJobIds(q.jobName)
 	if err != nil {
 		return nil, err
 	}
 
 	switch len(jobIds) {
 	case 0:
-		return nil, fmt.Errorf("%v is not an active running job base name", q.jobNameBase)
+		return nil, fmt.Errorf("%v is not an active running job", q.jobName)
 	case 1:
 		args := []string{}
 		args = append(args,
@@ -39,6 +39,6 @@ func (q Query) execute() ([]byte, error) {
 
 		return out, nil
 	default:
-		return nil, fmt.Errorf("%v has %v instances running", q.jobNameBase, len(jobIds))
+		return nil, fmt.Errorf("%v has %v instances running", q.jobName, len(jobIds))
 	}
 }

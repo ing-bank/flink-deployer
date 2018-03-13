@@ -127,11 +127,11 @@ func UpdateAction(c *cli.Context) error {
 func QueryAction(c *cli.Context) error {
 	query := Query{}
 
-	jobNameBase := c.String("job-name-base")
-	if len(jobNameBase) == 0 {
-		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
+	jobName := c.String("job-name")
+	if len(jobName) == 0 {
+		return cli.NewExitError("unspecified flag 'job-name'", -1)
 	} else {
-		query.jobNameBase = jobNameBase
+		query.jobName = jobName
 	}
 	filename := c.String("file-name")
 	if len(filename) == 0 {
@@ -273,14 +273,6 @@ func main() {
 				cli.StringFlag{
 					Name:  "file-name, fn",
 					Usage: "The complete name of the job JAR file",
-				},
-				cli.StringFlag{
-					Name:  "remote-file-name, rfn",
-					Usage: "The location of a remote job JAR file to be downloaded",
-				},
-				cli.StringFlag{
-					Name:  "api-token, at",
-					Usage: "The API token for the remote address of the a remote file",
 				},
 				cli.StringFlag{
 					Name:  "main-class, mc",

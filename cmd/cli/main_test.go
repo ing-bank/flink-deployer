@@ -135,7 +135,7 @@ func TestQueryActionShouldThrowAnErrorWhenTheJobnameArgumentIsMissing(t *testing
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
-	assert.EqualError(t, err, "unspecified flag 'job-name-base'")
+	assert.EqualError(t, err, "unspecified flag 'job-name'")
 }
 
 func TestQueryActionShouldThrowAnErrorWhenTheFilenameArgumentIsMissing(t *testing.T) {
@@ -144,7 +144,7 @@ func TestQueryActionShouldThrowAnErrorWhenTheFilenameArgumentIsMissing(t *testin
 
 	app := cli.App{}
 	set := flag.FlagSet{}
-	set.String("job-name-base", "Job A", "")
+	set.String("job-name", "Job A", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
@@ -158,7 +158,7 @@ func TestQueryActionShouldThrowAnErrorWhenTheMainClassArgumentIsMissing(t *testi
 	app := cli.App{}
 	set := flag.FlagSet{}
 	set.String("file-name", "file.jar", "")
-	set.String("job-name-base", "Job A", "")
+	set.String("job-name", "Job A", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
 
@@ -172,7 +172,7 @@ func TestQueryActionShouldThrowAnErrorWhenTheJobmanagerAddressIsMissing(t *testi
 	app := cli.App{}
 	set := flag.FlagSet{}
 	set.String("file-name", "file.jar", "")
-	set.String("job-name-base", "Job A", "")
+	set.String("job-name", "Job A", "")
 	set.String("main-class", "com.ing.QueryState", "")
 	context := cli.NewContext(&app, &set, nil)
 	err := QueryAction(context)
@@ -187,7 +187,7 @@ func TestQueryActionShouldThrowAnErrorWhenTheJobmanagerPortIsMissing(t *testing.
 	app := cli.App{}
 	set := flag.FlagSet{}
 	set.String("file-name", "file.jar", "")
-	set.String("job-name-base", "Job A", "")
+	set.String("job-name", "Job A", "")
 	set.String("main-class", "com.ing.QueryState", "")
 	set.String("jobmanager-address", "flink", "")
 	context := cli.NewContext(&app, &set, nil)
@@ -203,7 +203,7 @@ func TestQueryActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 	app := cli.App{}
 	set := flag.FlagSet{}
 	set.String("file-name", "file.jar", "")
-	set.String("job-name-base", "Job A", "")
+	set.String("job-name", "Job A", "")
 	set.String("main-class", "com.ing.QueryState", "")
 	set.String("jobmanager-address", "flink", "")
 	set.Int("jobmanager-port", 6123, "")

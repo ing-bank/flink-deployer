@@ -12,7 +12,7 @@ func TestQueryShouldReturnAnErrorWhenRetrievingTheJobsFails(t *testing.T) {
 	commander = TestCommander{}
 
 	query := Query{
-		jobNameBase: "Job A",
+		jobName: "Job A",
 	}
 
 	out, err := query.execute()
@@ -32,13 +32,13 @@ func TestQueryShouldReturnAnErrorWhenThereAreNoJobsRunning(t *testing.T) {
 	commander = TestCommander{}
 
 	query := Query{
-		jobNameBase: "Job A",
+		jobName: "Job A",
 	}
 
 	out, err := query.execute()
 
 	assert.Nil(t, out)
-	assert.EqualError(t, err, "Job A is not an active running job base name")
+	assert.EqualError(t, err, "Job A is not an active running job")
 }
 
 func TestQueryShouldReturnTheQueryCommandOutput(t *testing.T) {
@@ -52,7 +52,7 @@ func TestQueryShouldReturnTheQueryCommandOutput(t *testing.T) {
 	commander = TestCommander{}
 
 	query := Query{
-		jobNameBase:          "Job A",
+		jobName:              "Job A",
 		filename:             "file.jar",
 		mainClass:            "com.ing.QueryState",
 		jobManagerRPCAddress: "flink",
@@ -87,7 +87,7 @@ func TestQueryShouldReturnAnErrorWhenThereAreMultipleJobsRunning(t *testing.T) {
 	commander = TestCommander{}
 
 	query := Query{
-		jobNameBase: "Job A",
+		jobName: "Job A",
 	}
 
 	out, err := query.execute()
