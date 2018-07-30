@@ -30,11 +30,13 @@ services:
       - taskmanager
     command: 
       - "deploy"
-      - "-file-name"
+      - "--file-name"
       - "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar"
-      - "-run-args"
-      - "-p 2 -d -c WordCountStateful"
-      - "-jar-args"
+      - "--entry-class"
+      - "WordCountStateful"
+      - "--parallelism"
+      - "2"
+      - "--jar-args"
       - "--intervalMs 1000"
     volumes:
       - /tmp/flink-deployer:/data/flink
@@ -42,3 +44,7 @@ services:
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
       - JOB_MANAGER_RPC_PORT=6123
+      - FLINK_HOST=jobmanager
+      - FLINK_PORT=8081
+    links: 
+      - jobmanager
