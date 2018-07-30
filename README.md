@@ -20,6 +20,7 @@ For a full overview of the commands and flags, run `flink-job-deployer help`
 
 To be able to test the deployer locally, follow these steps:
 
+1. Build the CLI tool: `env GOOS=linux GOARCH=amd64 go build ./cmd/cli`
 1. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
 2. `docker-compose up -d jobmanager taskmanager` (start a Flink job- and taskmanager)
 3. `docker-compose run deployer help` (run the Flink deployer with argument `help`)

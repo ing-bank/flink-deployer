@@ -14,7 +14,7 @@ func TestDeployShouldReturnAnErrorIfTheCommandFails(t *testing.T) {
 		localFilename: "fake.jar",
 	}
 
-	_, err := deploy.execute()
+	err := deploy.execute()
 
 	assert.EqualError(t, err, "exit status 1")
 }
@@ -29,7 +29,7 @@ func TestDeployShouldAddASavepointArgumentWhenASavepointPathIsSpecified(t *testi
 		savepointPath: "/savepoint",
 	}
 
-	_, _ = deploy.execute()
+	_ = deploy.execute()
 
 	expected := []string{
 		"run",
@@ -59,30 +59,6 @@ func TestDeployShouldAddAnArgumentWhenAllowNonRestorableStateIsTrue(t *testing.T
 	}
 	assert.Equal(t, expected, receivedArguments)
 }
-
-func TestDeployShouldAddAllRunArgumentsWhenSupplied(t *testing.T) {
-	mockedStdout = ""
-	mockedExitStatus = 0
-	commander = TestCommander{}
-
-	deploy := Deploy{
-		localFilename: "fake.jar",
-		runArgs: "-p 1 -d",
-	}
-
-	_, _ = deploy.execute()
-
-	expected := []string{
-		"run",
-		"-p",
-		"1",
-		"-d",
-		"fake.jar",
-	}
-	assert.Equal(t, expected, receivedArguments)
-}
-
-
 
 func TestDeployShouldReturnAnErrorIfTheFilenameIsNotSpecified(t *testing.T) {
 	mockedStdout = ""

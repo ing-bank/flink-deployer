@@ -76,7 +76,6 @@ func CreateSavepoint(jobId string, savepointTargetDir string) (string, error) {
 
 type UpdateJob struct {
 	jobNameBase             string
-	runArgs                 string
 	localFilename           string
 	remoteFilename          string
 	apiToken                string
@@ -85,12 +84,12 @@ type UpdateJob struct {
 	allowNonRestorableState bool
 }
 
-func (u UpdateJob) execute() ([]byte, error) {
+func (u UpdateJob) execute() error {
 	if len(u.jobNameBase) == 0 {
-		return nil, errors.New("unspecified argument 'jobNameBase'")
+		return errors.New("unspecified argument 'jobNameBase'")
 	}
 	if len(u.savepointDirectory) == 0 {
-		return nil, errors.New("unspecified argument 'savepointDirectory'")
+		return errors.New("unspecified argument 'savepointDirectory'")
 	}
 
 	log.Printf("starting job update for base name: %v, and savepoint dir: %v\n", u.jobNameBase, u.savepointDirectory)
@@ -98,11 +97,10 @@ func (u UpdateJob) execute() ([]byte, error) {
 	jobIds, err := RetrieveRunningJobIds(u.jobNameBase)
 	if err != nil {
 		log.Printf("Retrieving the running jobs failed: %v\n", err)
-		return nil, err
+		return err
 	}
 
 	deploy := Deploy{
-		runArgs:                 u.runArgs,
 		localFilename:           u.localFilename,
 		remoteFilename:          u.remoteFilename,
 		apiToken:                u.apiToken,
@@ -114,13 +112,13 @@ func (u UpdateJob) execute() ([]byte, error) {
 		log.Printf("No instance running for job name base \"%v\". Using last available savepoint\n", u.jobNameBase)
 
 		if len(u.savepointDirectory) == 0 {
-			return nil, errors.New("cannot retrieve the latest savepoint without specifying the savepoint directory")
+			return errors.New("cannot retrieve the latest savepoint without specifying the savepoint directory")
 		}
 
 		latestSavepoint, err := RetrieveLatestSavepoint(u.savepointDirectory)
 		if err != nil {
 			log.Printf("Retrieving the latest savepoint failed: %v\n", err)
-			return nil, err
+			return err
 		}
 
 		if len(latestSavepoint) != 0 {
@@ -132,15 +130,20 @@ func (u UpdateJob) execute() ([]byte, error) {
 
 		savepoint, err := CreateSavepoint(jobId, u.savepointDirectory)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		deploy.savepointPath = savepoint
 
 		CancelJob(jobId)
 	default:
-		return nil, fmt.Errorf("Jobname base \"%v\" has %v instances running", u.jobNameBase, len(jobIds))
+		return fmt.Errorf("Jobname base \"%v\" has %v instances running", u.jobNameBase, len(jobIds))
 	}
 
-	return deploy.execute()
+	err = deploy.execute()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

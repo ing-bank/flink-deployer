@@ -4,20 +4,27 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/spf13/afero"
 	"github.com/urfave/cli"
 )
 
 var filesystem afero.Fs
+var flinkRestClient FlinkRestClient
 
 func ListAction(c *cli.Context) error {
-	out, err := ListJobs()
-
-	log.Println(string(out))
-
+	jobs, err := flinkRestClient.retrieveJobs()
 	if err != nil {
-		return err
+		return cli.NewExitError(fmt.Sprintf("Failed to list jobs: %v", err), -1)
+	}
+
+	if len(jobs) == 0 {
+		log.Println("No running jobs found")
+	} else {
+		for _, job := range jobs {
+			log.Printf("Job %v (%v) with status: %v", job.name, job.id, job.status)
+		}
 	}
 
 	return nil
@@ -25,11 +32,6 @@ func ListAction(c *cli.Context) error {
 
 func DeployAction(c *cli.Context) error {
 	deploy := Deploy{}
-
-	runArgs := c.String("run-args")
-	if len(runArgs) > 0 {
-		deploy.runArgs = runArgs
-	}
 
 	filename := c.String("file-name")
 	remoteFilename := c.String("remote-file-name")
@@ -51,6 +53,14 @@ func DeployAction(c *cli.Context) error {
 		}
 	}
 
+	entryClass := c.String("entry-class")
+	if len(entryClass) > 0 {
+		deploy.entryClass = entryClass
+	}
+	parallelism := c.Int("parallelism")
+	if parallelism != 0 {
+		deploy.parallelism = parallelism
+	}
 	jarArgs := c.String("jar-args")
 	if len(jarArgs) > 0 {
 		deploy.jarArgs = jarArgs
@@ -61,10 +71,7 @@ func DeployAction(c *cli.Context) error {
 	}
 	deploy.allowNonRestorableState = c.Bool("allow-non-restorable-state")
 
-	out, err := deploy.execute()
-
-	log.Println(string(out))
-
+	err := deploy.execute()
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
 	}
@@ -80,10 +87,6 @@ func UpdateAction(c *cli.Context) error {
 		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
 	} else {
 		update.jobNameBase = jobNameBase
-	}
-	runArgs := c.String("run-args")
-	if len(runArgs) > 0 {
-		update.runArgs = runArgs
 	}
 	filename := c.String("file-name")
 	remoteFilename := c.String("remote-file-name")
@@ -113,9 +116,7 @@ func UpdateAction(c *cli.Context) error {
 	}
 	update.allowNonRestorableState = c.Bool("allow-non-restorable-state")
 
-	out, err := update.execute()
-
-	log.Println(string(out))
+	err := update.execute()
 
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
@@ -170,8 +171,23 @@ func QueryAction(c *cli.Context) error {
 }
 
 func main() {
+	flinkHost := os.Getenv("FLINK_HOST")
+	if len(flinkHost) == 0 {
+		log.Fatal("`FLINK_HOST` environment variable not found")
+		os.Exit(1)
+	}
+	flinkPort, err := strconv.Atoi(os.Getenv("FLINK_PORT"))
+	if err != nil {
+		log.Fatal("`FLINK_PORT` environment variable not found or invalid")
+		os.Exit(1)
+	}
+
 	commander = RealCommander{}
 	filesystem = afero.NewOsFs()
+	flinkRestClient = FlinkRestClient{
+		host: flinkHost,
+		port: flinkPort,
+	}
 
 	app := cli.NewApp()
 	app.Name = "flink-deployer"
@@ -203,8 +219,12 @@ func main() {
 					Usage: "The API token for the remote address of the a remote file",
 				},
 				cli.StringFlag{
-					Name:  "run-args, ra",
-					Usage: "The arguments to pass to the 'flink run' command",
+					Name:  "entry-class, ec",
+					Usage: "The entry class name that contains the main methof",
+				},
+				cli.StringFlag{
+					Name:  "parallelism, p",
+					Usage: "The parallelism count",
 				},
 				cli.StringFlag{
 					Name:  "jar-args, ja",
@@ -241,10 +261,6 @@ func main() {
 				cli.StringFlag{
 					Name:  "api-token, at",
 					Usage: "The API token for the remote address of the a remote file",
-				},
-				cli.StringFlag{
-					Name:  "run-args, ra",
-					Usage: "The arguments to pass to the 'flink run' command",
 				},
 				cli.StringFlag{
 					Name:  "jar-args, ja",
