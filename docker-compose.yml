@@ -22,12 +22,18 @@ services:
     volumes:
       - /tmp/flink-deployer:/data/flink
 
+  echo-server:
+    image: jmalloc/echo-server
+    ports:
+      - 8080
+
   deployer:
     build: .
     image: nielsdenissen/flink-deployer:master
     depends_on:
       - jobmanager
       - taskmanager
+      - echo-server
     command: 
       - "deploy"
       - "--file-name"
@@ -42,9 +48,8 @@ services:
       - /tmp/flink-deployer:/data/flink
       - ./flink-sample-job/target/scala-2.11/:/tmp/flink-sample-job
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
-      - JOB_MANAGER_RPC_PORT=6123
       - FLINK_HOST=jobmanager
       - FLINK_PORT=8081
     links: 
       - jobmanager
+      - echo-server

@@ -76,12 +76,12 @@ func (d Deploy) execute() error {
 	}
 
 	log.Println("Deploying job")
-	
+
 	uploadResponse, err := flinkRestClient.uploadJar(filename)
 	if err != nil {
 		return err
 	}
-	log.Println(uploadResponse)
+
 	jars, err := flinkRestClient.retrieveJars()
 	if err != nil {
 		return err

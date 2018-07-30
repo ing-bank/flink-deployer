@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"os"
 	"path/filepath"
 	"time"
@@ -93,6 +93,17 @@ type uploadJarResponse struct {
 	status   string `json:"status"`
 }
 
+func createJarFormFile(w *multipart.Writer, fieldname string, filename string) (io.Writer, error) {
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition",
+		fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+			fieldname, filename))
+	// h.Set("Content-Type", "application/octet-stream")
+	// h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", "jarfile", filename))
+	h.Set("Content-Type", "application/x-java-archive")
+	return w.CreatePart(h)
+}
+
 func (c FlinkRestClient) uploadJar(filename string) (uploadJarResponse, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -102,7 +113,8 @@ func (c FlinkRestClient) uploadJar(filename string) (uploadJarResponse, error) {
 
 	reqBody := &bytes.Buffer{}
 	writer := multipart.NewWriter(reqBody)
-	part, err := writer.CreateFormFile("jarfile", filepath.Base(filename))
+	// part, err := writer.CreateFormFile("jarfile", filepath.Base(filename))
+	part, err := createJarFormFile(writer, "jarfile", filepath.Base(filename))
 	if err != nil {
 		return uploadJarResponse{}, err
 	}
@@ -112,12 +124,7 @@ func (c FlinkRestClient) uploadJar(filename string) (uploadJarResponse, error) {
 		return uploadJarResponse{}, err
 	}
 
-	err = writer.Close()
-	if err != nil {
-		return uploadJarResponse{}, err
-	}
-
-	res, err := netClient.Post(c.constructURL("jars/upload"), "application/x-java-archive", reqBody)
+	res, err := netClient.Post(c.constructURL("jars/upload"), writer.FormDataContentType(), reqBody)
 	if err != nil {
 		return uploadJarResponse{}, err
 	}
@@ -133,13 +140,14 @@ func (c FlinkRestClient) uploadJar(filename string) (uploadJarResponse, error) {
 		return uploadJarResponse{}, fmt.Errorf("Unexpected response status %v with body %v", res.StatusCode, string(resBody[:]))
 	}
 
+	println(string(resBody[:]))
+
 	response := uploadJarResponse{}
 	err = json.Unmarshal(resBody, &response)
 	if err != nil {
 		return uploadJarResponse{}, errors.New("Unable to parse API response as valid JSON")
 	}
 
-	log.Printf("UPLOAD STATUS %v", res.Status)
 	return response, nil
 }
 
