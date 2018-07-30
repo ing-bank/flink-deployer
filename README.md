@@ -33,20 +33,26 @@ Provided you ran step 1 of the above guide, a jar with a sample Flink job is ava
 
 To deploy it you can simply run (it's the default command specified in the `docker-compose.yml`): 
 
-    docker-compose run deployer
+```bash
+docker-compose run deployer
+```
 
 This will print a simple word count to the output console, you can view it by checking the logs of the taskmanager as follows:
 
-    docker-compose logs -f taskmanager
+```bash
+docker-compose logs -f taskmanager
+```
 
 Finally if you want to update the job, you can run:
 
-    docker-compose run deployer update 
+```bash
+docker-compose run deployer update 
     -job-name-base "Windowed WordCount" 
     -file-name "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar" 
     -run-args "-p 2 -d -c WordCountStateful" 
     -jar-args "--intervalMs 1000" 
     -savepoint-dir "/data/flink/savepoints"
+```
 
 If all went well you should see the word counter continue with where it was.
 
@@ -60,24 +66,34 @@ Run `dep status` to review the status of the included and most recent available 
 
 Build from source for your current machine:
 
-`go build ./cmd/cli`
+```bash
+go build ./cmd/cli
+```
 
 Build from source for a specific machine architecture:
 
-`env GOOS=linux GOARCH=amd64 go build ./cmd/cli`
+```bash
+env GOOS=linux GOARCH=amd64 go build ./cmd/cli
+```
 
 Build the Docker container:
 
-`go build ./cmd/cli`
-`docker build -t com.ing/flink-job-deployer:latest .`
+```bash
+go build ./cmd/cli
+docker build -t com.ing/flink-job-deployer:latest .
+```
 
 ## Test
 
-`go test`
+```bash
+go test
+```
 
 Or with coverage:
 
-`go test -coverprofile=cover.out && go tool cover`
+```bash
+go test -coverprofile=cover.out && go tool cover
+```
 
 # Docker
 
