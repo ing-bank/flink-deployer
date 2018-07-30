@@ -1,4 +1,4 @@
 cover.out
-cli
 target/
 .idea
+/cli

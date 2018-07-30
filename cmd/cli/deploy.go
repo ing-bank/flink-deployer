@@ -8,16 +8,28 @@ import (
 )
 
 type Deploy struct {
-	runArgs                 string
 	remoteFilename          string
 	apiToken                string
 	localFilename           string
+	entryClass              string
+	parallelism             int
 	jarArgs                 string
 	savepointPath           string
 	allowNonRestorableState bool
 }
 
-func (d Deploy) execute() ([]byte, error) {
+func findJarIDForFilename(filename string, jars []Jar) (string, error) {
+	for _, jar := range jars {
+		log.Printf("Jar found: %v\n", jar.name)
+		if jar.name == filename {
+			return jar.id, nil
+		}
+	}
+
+	return "", fmt.Errorf("Unable to find JAR with the filename: %v", filename)
+}
+
+func (d Deploy) execute() error {
 	log.Println("Starting deploy")
 
 	args := []string{
@@ -34,32 +46,22 @@ func (d Deploy) execute() ([]byte, error) {
 		args = append(args, "-n")
 	}
 
-	if len(d.runArgs) != 0 {
-		runArgs := strings.Split(d.runArgs, " ")
-
-		for _, v := range runArgs {
-			if len(v) == 0 {
-				continue
-			}
-			args = append(args, fmt.Sprintf("%v", v))
-		}
-	}
-
 	if len(d.remoteFilename) == 0 && len(d.localFilename) == 0 {
-		return nil, errors.New("both properties 'remoteFilename' and 'localFilename' are unspecified")
+		return errors.New("both properties 'remoteFilename' and 'localFilename' are unspecified")
 	}
+
+	var filename string
 
 	if len(d.remoteFilename) > 0 {
-		filename := "/tmp/job.jar"
+		filename = "/tmp/job.jar"
 		_, err := downloadFile(d.remoteFilename, d.apiToken, filename)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		args = append(args, filename)
 	}
 
 	if len(d.localFilename) > 0 {
-		args = append(args, d.localFilename)
+		filename = d.localFilename
 	}
 
 	if len(d.jarArgs) != 0 {
@@ -74,12 +76,26 @@ func (d Deploy) execute() ([]byte, error) {
 	}
 
 	log.Println("Deploying job")
-	log.Printf("Arguments: %v\n", args)
-
-	out, err := commander.CombinedOutput("flink", args...)
+	
+	uploadResponse, err := flinkRestClient.uploadJar(filename)
 	if err != nil {
-		return out, err
+		return err
+	}
+	log.Println(uploadResponse)
+	jars, err := flinkRestClient.retrieveJars()
+	if err != nil {
+		return err
 	}
 
-	return out, nil
+	jarID, err := findJarIDForFilename(uploadResponse.filename, jars)
+	if err != nil {
+		return err
+	}
+
+	err = flinkRestClient.runJar(jarID, d.jarArgs, d.savepointPath, d.allowNonRestorableState)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
