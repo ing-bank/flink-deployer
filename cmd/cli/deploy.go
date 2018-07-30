@@ -11,6 +11,8 @@ type Deploy struct {
 	remoteFilename          string
 	apiToken                string
 	localFilename           string
+	entryClass              string
+	parallelism             int
 	jarArgs                 string
 	savepointPath           string
 	allowNonRestorableState bool
@@ -87,7 +89,7 @@ func (d Deploy) execute() error {
 		return err
 	}
 
-	jarID, err := findJarIDForFilename(filename, jars)
+	jarID, err := findJarIDForFilename(uploadResponse.filename, jars)
 	if err != nil {
 		return err
 	}

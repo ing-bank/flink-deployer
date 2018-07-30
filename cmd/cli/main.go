@@ -53,6 +53,14 @@ func DeployAction(c *cli.Context) error {
 		}
 	}
 
+	entryClass := c.String("entry-class")
+	if len(entryClass) > 0 {
+		deploy.entryClass = entryClass
+	}
+	parallelism := c.Int("parallelism")
+	if parallelism != 0 {
+		deploy.parallelism = parallelism
+	}
 	jarArgs := c.String("jar-args")
 	if len(jarArgs) > 0 {
 		deploy.jarArgs = jarArgs
@@ -79,10 +87,6 @@ func UpdateAction(c *cli.Context) error {
 		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
 	} else {
 		update.jobNameBase = jobNameBase
-	}
-	runArgs := c.String("run-args")
-	if len(runArgs) > 0 {
-		update.runArgs = runArgs
 	}
 	filename := c.String("file-name")
 	remoteFilename := c.String("remote-file-name")
@@ -112,9 +116,7 @@ func UpdateAction(c *cli.Context) error {
 	}
 	update.allowNonRestorableState = c.Bool("allow-non-restorable-state")
 
-	out, err := update.execute()
-
-	log.Println(string(out))
+	err := update.execute()
 
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
@@ -217,6 +219,14 @@ func main() {
 					Usage: "The API token for the remote address of the a remote file",
 				},
 				cli.StringFlag{
+					Name:  "entry-class, ec",
+					Usage: "The entry class name that contains the main methof",
+				},
+				cli.StringFlag{
+					Name:  "parallelism, p",
+					Usage: "The parallelism count",
+				},
+				cli.StringFlag{
 					Name:  "jar-args, ja",
 					Usage: "The arguments to pass to the jar execution",
 				},
@@ -251,10 +261,6 @@ func main() {
 				cli.StringFlag{
 					Name:  "api-token, at",
 					Usage: "The API token for the remote address of the a remote file",
-				},
-				cli.StringFlag{
-					Name:  "run-args, ra",
-					Usage: "The arguments to pass to the 'flink run' command",
 				},
 				cli.StringFlag{
 					Name:  "jar-args, ja",
