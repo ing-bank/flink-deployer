@@ -16,6 +16,20 @@ Currently, it supports several features:
 
 For a full overview of the commands and flags, run `flink-job-deployer help`
 
+## How to run locally
+
+To be able to test the deployer locally, follow these steps:
+
+1. `go build ./cmd/cli` (build the CLI tool)
+2. `docker-compose build deployer` (build deployer docker container)
+3. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
+4. `docker-compose up jobmanager taskmanager` (start a Flink job- and taskmanager)
+5. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
+
+Repeat step 4 with any commands you'd like to try. A jar with a sample Flink job is available in the deployer here: `/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar`. 
+
+To deploy the sample job you can simply run `docker-compose run deployer` (it's the default command specified in the `docker-compose.yml`)
+
 ## Managing dependencies
 
 This project uses [dep](https://github.com/golang/dep) to manage all project dependencies residing in the `vendor` folder. 

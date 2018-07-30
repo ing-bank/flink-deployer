@@ -24,4 +24,20 @@ services:
     depends_on:
       - jobmanager
       - taskmanager
-    command: list
+    command: 
+      - "deploy"
+      # - "-job-name-base"
+      # - "${FLINK_JOB_NAME}"
+      - "-file-name"
+      - "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar"
+      - "-run-args"
+      - "-p 2 -d -c WordCountStateful"
+      - "-jar-args"
+      - "--intervalMs 1000"
+      # - "-savepoint-dir"
+      # - "/data/flink/savepoints"
+    volumes:
+      - ./flink-sample-job/target/scala-2.11/:/tmp/flink-sample-job
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - JOB_MANAGER_RPC_PORT=6123

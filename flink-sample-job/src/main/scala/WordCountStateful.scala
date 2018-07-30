@@ -9,10 +9,10 @@ object WordCountStateful {
     // get the execution environment
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
-    var intervalMs = _
+    var intervalMs = 1000
     try {
       val params = ParameterTool.fromArgs(args)
-      intervalMs = if (params.has("interval")) params.get("interval") else 1000
+      intervalMs = if (params.has("interval")) params.getInt("interval") else 1000
     } catch {
       case e: Exception => {
         System.err.println("No interval specified. Please run 'WordCountStateful " +
