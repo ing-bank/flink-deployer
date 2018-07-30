@@ -24,7 +24,7 @@ services:
 
   deployer:
     build: .
-    image: nielsdenissen/flink-deployer:latest
+    image: nielsdenissen/flink-deployer:master
     depends_on:
       - jobmanager
       - taskmanager

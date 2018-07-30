@@ -20,16 +20,14 @@ For a full overview of the commands and flags, run `flink-job-deployer help`
 
 To be able to test the deployer locally, follow these steps:
 
-1. `go build ./cmd/cli` (build the CLI tool)
-2. `docker-compose build deployer` (build deployer docker container)
-3. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
-4. `docker-compose up jobmanager taskmanager` (start a Flink job- and taskmanager)
-5. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
+1. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
+2. `docker-compose up -d jobmanager taskmanager` (start a Flink job- and taskmanager)
+3. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
 
-Repeat step 4 with any commands you'd like to try. 
+Repeat step 3 with any commands you'd like to try. 
 
 ### Run a sample job
-Provided you ran step 3 of the above guide, a jar with a sample Flink job is available in the deployer. It will be mounted in the deployer container at the following path:
+Provided you ran step 1 of the above guide, a jar with a sample Flink job is available in the deployer. It will be mounted in the deployer container at the following path:
 
     /tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar
 
