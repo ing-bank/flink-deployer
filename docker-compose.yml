@@ -1,0 +1,27 @@
+version: '3.4'
+services:
+
+  jobmanager:
+    image: flink:1.5.1-alpine
+    ports:
+      - "8081:8081"
+      - "6123:6123"
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  taskmanager:
+    image: flink:1.5.1-alpine
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  deployer:
+    build: .
+    image: nielsdenissen/flink-deployer:latest
+    depends_on:
+      - jobmanager
+      - taskmanager
+    command: list
