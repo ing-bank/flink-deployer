@@ -23,6 +23,7 @@ services:
       - /tmp/flink-deployer:/data/flink
 
   deployer:
+    build: .
     image: nielsdenissen/flink-deployer:master
     depends_on:
       - jobmanager

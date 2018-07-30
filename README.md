@@ -56,6 +56,8 @@ docker-compose run deployer update
 
 If all went well you should see the word counter continue with where it was.
 
+# Development
+
 ## Managing dependencies
 
 This project uses [dep](https://github.com/golang/dep) to manage all project dependencies residing in the `vendor` folder. 
@@ -76,11 +78,11 @@ Build from source for a specific machine architecture:
 env GOOS=linux GOARCH=amd64 go build ./cmd/cli
 ```
 
-Build the Docker container:
+Build the Docker container locally to test CLI tool:
 
 ```bash
 go build ./cmd/cli
-docker build -t com.ing/flink-job-deployer:latest .
+docker-compose build deployer
 ```
 
 ## Test
