@@ -26,9 +26,20 @@ To be able to test the deployer locally, follow these steps:
 4. `docker-compose up jobmanager taskmanager` (start a Flink job- and taskmanager)
 5. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
 
-Repeat step 4 with any commands you'd like to try. A jar with a sample Flink job is available in the deployer here: `/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar`. 
+Repeat step 4 with any commands you'd like to try. 
 
-To deploy the sample job you can simply run `docker-compose run deployer` (it's the default command specified in the `docker-compose.yml`)
+### Run a sample job
+Provided you ran step 3 of the above guide, a jar with a sample Flink job is available in the deployer. It will be mounted in the deployer container at the following path:
+
+    /tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar
+
+To deploy it you can simply run (it's the default command specified in the `docker-compose.yml`): 
+
+    docker-compose run deployer
+
+This will print a simple word count to the output console, you can view it by checking the logs of the taskmanager as follows:
+
+    docker-compose logs -f taskmanager
 
 ## Managing dependencies
 
