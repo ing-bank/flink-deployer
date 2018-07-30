@@ -107,7 +107,7 @@ Here's an example of how such a kubernetes yaml could look like:
                 - "-run-args"
                 - "-p 2 -d -c $(MAIN_CLASS_NAME)"
                 - "-jar-args"
-                - "--kafka.bootstrapServers $(KAFKA_BOOTSTRAPSERVERS)"
+                - "--your.jar.args here"
                 - "-savepoint-dir"
                 - "/data/flink/savepoints/$(FLINK_JOB_ID)"
                 imagePullPolicy: Always
@@ -122,8 +122,6 @@ Here's an example of how such a kubernetes yaml could look like:
                     value: "zookeeper"
                 -   name: ZOOKEEPER_QUORUM
                     value: "zookeeper:2181"
-                -   name: KAFKA_BOOTSTRAPSERVERS
-                    value: "kafka:9092"
                 -   name: MAIN_CLASS_NAME
                     value: "${MAIN_CLASS_NAME}"
                 -   name: FLINK_JOB_ID
