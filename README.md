@@ -102,6 +102,14 @@ go test -coverprofile=cover.out && go tool cover
 
 A docker image for this repo is available from the docker hub: `nielsdenissen/flink-deployer`
 
+The image expects the following env vars:
+
+```bash
+FLINK_HOST=localhost
+FLINK_PORT=6123
+```
+
+
 # Kubernetes
 
 When running in Kubernetes (or Openshift), you'll have to deploy the container to the cluster. A reason for this is Flink will try to reroute you to the internal Kubernetes address of the cluster, which doesn't resolve from outside. Besides that it'll give you the necessary access to the stored savepoints when you're using persistent volumes to store those.
@@ -138,14 +146,10 @@ Here's an example of how such a kubernetes yaml could look like:
                 env:
                 -   name: FLINK_JOB_NAME_BASE
                     value: "${FLINK_JOB_NAME_BASE}"
-                -   name: JOB_MANAGER_RPC_ADDRESS
+                -   name: FLINK_PORT
                     value: "jobmanager"
-                -   name: JOB_MANAGER_RPC_PORT
+                -   name: FLINK_HOST
                     value: "8081"
-                -   name: HIGH_AVAILABILITY
-                    value: "zookeeper"
-                -   name: ZOOKEEPER_QUORUM
-                    value: "zookeeper:2181"
                 -   name: MAIN_CLASS_NAME
                     value: "${MAIN_CLASS_NAME}"
                 -   name: FLINK_JOB_ID
