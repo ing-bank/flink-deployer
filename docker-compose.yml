@@ -1,0 +1,44 @@
+version: '3.4'
+services:
+
+  jobmanager:
+    image: flink:1.5.1-alpine
+    ports:
+      - "8081:8081"
+      - "6123:6123"
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    volumes:
+      - /tmp/flink-deployer:/data/flink
+
+  taskmanager:
+    image: flink:1.5.1-alpine
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    volumes:
+      - /tmp/flink-deployer:/data/flink
+
+  deployer:
+    build: .
+    image: nielsdenissen/flink-deployer:master
+    depends_on:
+      - jobmanager
+      - taskmanager
+    command: 
+      - "deploy"
+      - "-file-name"
+      - "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar"
+      - "-run-args"
+      - "-p 2 -d -c WordCountStateful"
+      - "-jar-args"
+      - "--intervalMs 1000"
+    volumes:
+      - /tmp/flink-deployer:/data/flink
+      - ./flink-sample-job/target/scala-2.11/:/tmp/flink-sample-job
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - JOB_MANAGER_RPC_PORT=6123

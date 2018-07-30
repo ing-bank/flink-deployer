@@ -24,3 +24,4 @@ after_success:
 - bash <(curl -s https://codecov.io/bash)
 - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD";
   docker push "nielsdenissen/flink-deployer:$TRAVIS_BRANCH";
+  if [ "${TRAVIS_BRANCH}" == "master" ]; then docker tag nielsdenissen/flink-deployer:$TRAVIS_BRANCH nielsdenissen/flink-deployer:latest; docker push nielsdenissen/flink-deployer:latest; fi

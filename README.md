@@ -16,6 +16,48 @@ Currently, it supports several features:
 
 For a full overview of the commands and flags, run `flink-job-deployer help`
 
+## How to run locally
+
+To be able to test the deployer locally, follow these steps:
+
+1. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
+2. `docker-compose up -d jobmanager taskmanager` (start a Flink job- and taskmanager)
+3. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
+
+Repeat step 3 with any commands you'd like to try. 
+
+### Run a sample job
+Provided you ran step 1 of the above guide, a jar with a sample Flink job is available in the deployer. It will be mounted in the deployer container at the following path:
+
+    /tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar
+
+To deploy it you can simply run (it's the default command specified in the `docker-compose.yml`): 
+
+```bash
+docker-compose run deployer
+```
+
+This will print a simple word count to the output console, you can view it by checking the logs of the taskmanager as follows:
+
+```bash
+docker-compose logs -f taskmanager
+```
+
+Finally if you want to update the job, you can run:
+
+```bash
+docker-compose run deployer update 
+    -job-name-base "Windowed WordCount" 
+    -file-name "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar" 
+    -run-args "-p 2 -d -c WordCountStateful" 
+    -jar-args "--intervalMs 1000" 
+    -savepoint-dir "/data/flink/savepoints"
+```
+
+If all went well you should see the word counter continue with where it was.
+
+# Development
+
 ## Managing dependencies
 
 This project uses [dep](https://github.com/golang/dep) to manage all project dependencies residing in the `vendor` folder. 
@@ -26,24 +68,34 @@ Run `dep status` to review the status of the included and most recent available 
 
 Build from source for your current machine:
 
-`go build ./cmd/cli`
+```bash
+go build ./cmd/cli
+```
 
 Build from source for a specific machine architecture:
 
-`env GOOS=linux GOARCH=amd64 go build ./cmd/cli`
+```bash
+env GOOS=linux GOARCH=amd64 go build ./cmd/cli
+```
 
-Build the Docker container:
+Build the Docker container locally to test CLI tool:
 
-`go build ./cmd/cli`
-`docker build -t com.ing/flink-job-deployer:latest .`
+```bash
+go build ./cmd/cli
+docker-compose build deployer
+```
 
 ## Test
 
-`go test`
+```bash
+go test
+```
 
 Or with coverage:
 
-`go test -coverprofile=cover.out && go tool cover`
+```bash
+go test -coverprofile=cover.out && go tool cover
+```
 
 # Docker
 
@@ -78,7 +130,7 @@ Here's an example of how such a kubernetes yaml could look like:
                 - "-run-args"
                 - "-p 2 -d -c $(MAIN_CLASS_NAME)"
                 - "-jar-args"
-                - "--kafka.bootstrapServers $(KAFKA_BOOTSTRAPSERVERS)"
+                - "--your.jar.args here"
                 - "-savepoint-dir"
                 - "/data/flink/savepoints/$(FLINK_JOB_ID)"
                 imagePullPolicy: Always
@@ -93,8 +145,6 @@ Here's an example of how such a kubernetes yaml could look like:
                     value: "zookeeper"
                 -   name: ZOOKEEPER_QUORUM
                     value: "zookeeper:2181"
-                -   name: KAFKA_BOOTSTRAPSERVERS
-                    value: "kafka:9092"
                 -   name: MAIN_CLASS_NAME
                     value: "${MAIN_CLASS_NAME}"
                 -   name: FLINK_JOB_ID

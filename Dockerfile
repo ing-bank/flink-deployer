@@ -1,4 +1,4 @@
-FROM flink:1.4.1
+FROM flink:1.5.1
 
 ENV HIGH_AVAILABILITY=none \
     JOB_MANAGER_RPC_ADDRESS=localhost \
