@@ -1,6 +1,4 @@
 cover.out
 cli
-flink-sample-job/target/
-flink-sample-job/project/target/
-flink-sample-job/project/project/target/
+target/
 .idea

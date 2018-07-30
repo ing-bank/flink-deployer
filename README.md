@@ -41,7 +41,12 @@ This will print a simple word count to the output console, you can view it by ch
 
 Finally if you want to update the job, you can run:
 
-    docker-compose run deployer update -job-name-base "Windowed WordCount" -file-name "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar" -run-args "-p 2 -d -c WordCountStateful" -jar-args "--intervalMs 1000" -savepoint-dir "/data/flink/savepoints"
+    docker-compose run deployer update 
+    -job-name-base "Windowed WordCount" 
+    -file-name "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar" 
+    -run-args "-p 2 -d -c WordCountStateful" 
+    -jar-args "--intervalMs 1000" 
+    -savepoint-dir "/data/flink/savepoints"
 
 If all went well you should see the word counter continue with where it was.
 
