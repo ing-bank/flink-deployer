@@ -9,6 +9,8 @@ services:
     command: jobmanager
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    volumes:
+      - /tmp/flink-deployer:/data/flink
 
   taskmanager:
     image: flink:1.5.1-alpine
@@ -17,6 +19,8 @@ services:
     command: taskmanager
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    volumes:
+      - /tmp/flink-deployer:/data/flink
 
   deployer:
     build: .
@@ -26,17 +30,14 @@ services:
       - taskmanager
     command: 
       - "deploy"
-      # - "-job-name-base"
-      # - "${FLINK_JOB_NAME}"
       - "-file-name"
       - "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar"
       - "-run-args"
       - "-p 2 -d -c WordCountStateful"
       - "-jar-args"
       - "--intervalMs 1000"
-      # - "-savepoint-dir"
-      # - "/data/flink/savepoints"
     volumes:
+      - /tmp/flink-deployer:/data/flink
       - ./flink-sample-job/target/scala-2.11/:/tmp/flink-sample-job
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
