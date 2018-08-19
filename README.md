@@ -89,13 +89,13 @@ docker-compose build deployer
 ## Test
 
 ```bash
-go test
+go test ./cmd/cli ./cmd/cli/flink ./cmd/cli/operations
 ```
 
 Or with coverage:
 
 ```bash
-go test -coverprofile=cover.out && go tool cover
+go test ./cmd/cli ./cmd/cli/flink ./cmd/cli/operations -coverprofile=cover.out && go tool cover -html=cover.out
 ```
 
 # Docker

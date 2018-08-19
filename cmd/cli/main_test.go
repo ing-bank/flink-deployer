@@ -1,32 +1,52 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
+	"ing.com/flink-deployer/cmd/cli/flink"
 )
 
 /*
  * ListAction
  */
-func TestListActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
-	mockedExitStatus = -1
-	commander = TestCommander{}
+func TestListActionShouldReturnAnErrorWhenTheAPIFails(t *testing.T) {
+	mockedRetrieveJobsError = errors.New("failed")
+
+	operator = TestOperator{}
 
 	context := cli.Context{}
 	err := ListAction(&context)
 
-	assert.EqualError(t, err, "exit status 255")
+	assert.EqualError(t, err, "failed to list jobs: failed")
+}
+
+func TestListActionShouldReturnNilWhenTheAPISucceeds(t *testing.T) {
+	mockedRetrieveJobsResponse = []flink.Job{
+		flink.Job{
+			Id:     "1",
+			Name:   "Job A",
+			Status: "RUNNING",
+		},
+	}
+	mockedRetrieveJobsError = nil
+
+	operator = TestOperator{}
+
+	context := cli.Context{}
+	err := ListAction(&context)
+
+	assert.Nil(t, err)
 }
 
 /*
  * DeployAction
  */
 func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
+	operator = TestOperator{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
@@ -37,8 +57,7 @@ func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 }
 
 func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreSet(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
+	operator = TestOperator{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
@@ -51,8 +70,8 @@ func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 }
 
 func TestDeployActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
-	mockedExitStatus = -1
-	commander = TestCommander{}
+	mockedDeployError = errors.New("failed")
+	operator = TestOperator{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
@@ -60,15 +79,15 @@ func TestDeployActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 	context := cli.NewContext(&app, &set, nil)
 	err := DeployAction(context)
 
-	assert.EqualError(t, err, "an error occurred: exit status 255")
+	assert.EqualError(t, err, "an error occurred: failed")
 }
 
 /*
  * UpdateAction
  */
 func TestUpdateActionShouldThrowAnErrorWhenTheJobnameBaseArgumentIsMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
+	mockedUpdateError = nil
+	operator = TestOperator{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
@@ -80,8 +99,8 @@ func TestUpdateActionShouldThrowAnErrorWhenTheJobnameBaseArgumentIsMissing(t *te
 }
 
 func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
+	mockedUpdateError = nil
+	operator = TestOperator{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
@@ -93,8 +112,8 @@ func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 }
 
 func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreSet(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
+	mockedUpdateError = nil
+	operator = TestOperator{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
@@ -108,8 +127,8 @@ func TestUpdateActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 }
 
 func TestUpdateActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
-	mockedExitStatus = -1
-	commander = TestCommander{}
+	mockedUpdateError = errors.New("failed")
+	operator = TestOperator{}
 
 	app := cli.App{}
 	set := flag.FlagSet{}
@@ -119,96 +138,5 @@ func TestUpdateActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 	context := cli.NewContext(&app, &set, nil)
 	err := UpdateAction(context)
 
-	assert.EqualError(t, err, "an error occurred: exit status 255")
-}
-
-/*
- * QueryAction
- */
-func TestQueryActionShouldThrowAnErrorWhenTheJobnameArgumentIsMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("file-name", "file.jar", "")
-	context := cli.NewContext(&app, &set, nil)
-	err := QueryAction(context)
-
-	assert.EqualError(t, err, "unspecified flag 'job-name'")
-}
-
-func TestQueryActionShouldThrowAnErrorWhenTheFilenameArgumentIsMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("job-name", "Job A", "")
-	context := cli.NewContext(&app, &set, nil)
-	err := QueryAction(context)
-
-	assert.EqualError(t, err, "unspecified flag 'file-name'")
-}
-
-func TestQueryActionShouldThrowAnErrorWhenTheMainClassArgumentIsMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
-	context := cli.NewContext(&app, &set, nil)
-	err := QueryAction(context)
-
-	assert.EqualError(t, err, "unspecified flag 'main-class'")
-}
-
-func TestQueryActionShouldThrowAnErrorWhenTheJobmanagerAddressIsMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
-	set.String("main-class", "com.ing.QueryState", "")
-	context := cli.NewContext(&app, &set, nil)
-	err := QueryAction(context)
-
-	assert.EqualError(t, err, "unspecified flag 'jobmanager-address'")
-}
-
-func TestQueryActionShouldThrowAnErrorWhenTheJobmanagerPortIsMissing(t *testing.T) {
-	mockedExitStatus = 0
-	commander = TestCommander{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
-	set.String("main-class", "com.ing.QueryState", "")
-	set.String("jobmanager-address", "flink", "")
-	context := cli.NewContext(&app, &set, nil)
-	err := QueryAction(context)
-
-	assert.EqualError(t, err, "unspecified flag 'jobmanager-port'")
-}
-
-func TestQueryActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
-	mockedExitStatus = -1
-	commander = TestCommander{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("file-name", "file.jar", "")
-	set.String("job-name", "Job A", "")
-	set.String("main-class", "com.ing.QueryState", "")
-	set.String("jobmanager-address", "flink", "")
-	set.Int("jobmanager-port", 6123, "")
-	context := cli.NewContext(&app, &set, nil)
-	err := QueryAction(context)
-
-	assert.EqualError(t, err, "an error occurred: exit status 255")
+	assert.EqualError(t, err, "an error occurred: failed")
 }

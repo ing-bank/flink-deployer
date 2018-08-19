@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
+  version = "v2.0.0"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -36,6 +42,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  revision = "c39426892332e1bb5ec0a434a079bf82f5d30c54"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/text"
   packages = [
     "internal/gen",
@@ -50,6 +62,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "61d8a450592f392239f1f6853a006f3d4cffc28666da5f3aecd5600aa7258200"
+  inputs-digest = "498c064064d1d7c4e11b1d798d680185906c915fdc3f9fd72bf50e59b4f91f58"
   solver-name = "gps-cdcl"
   solver-version = 1
