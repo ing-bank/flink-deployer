@@ -2,10 +2,16 @@ package flink
 
 import (
 	"fmt"
+	"net/http"
 )
 
 func (c FlinkRestClient) Cancel(jobID string) error {
-	res, err := c.Client.Get(c.constructURL(fmt.Sprintf("jobs/%v/yarn-cancel", jobID)))
+	req, err := http.NewRequest("PATCH", c.constructURL(fmt.Sprintf("jobs/%v", jobID)), nil)
+	if err != nil {
+		return err
+	}
+
+	res, err := c.Client.Do(req)
 	if err != nil {
 		return err
 	}

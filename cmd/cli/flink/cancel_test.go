@@ -8,7 +8,7 @@ import (
 )
 
 func TestCancelReturnsAnErrorWhenTheResponseStatusIsNot202(t *testing.T) {
-	server := createTestServerWithBodyCheck(t, "/jobs/id/yarn-cancel", "", http.StatusOK, "OK")
+	server := createTestServerWithBodyCheck(t, "/jobs/id", "", http.StatusOK, "OK")
 	defer server.Close()
 
 	api := FlinkRestClient{server.URL, server.Client()}
@@ -18,7 +18,7 @@ func TestCancelReturnsAnErrorWhenTheResponseStatusIsNot202(t *testing.T) {
 }
 
 func TestCancelShouldNotReturnAnErrorWhenTheResponseStatusIs202(t *testing.T) {
-	server := createTestServerWithBodyCheck(t, "/jobs/id/yarn-cancel", "", http.StatusAccepted, "")
+	server := createTestServerWithBodyCheck(t, "/jobs/id", "", http.StatusAccepted, "")
 	defer server.Close()
 
 	api := FlinkRestClient{server.URL, server.Client()}
