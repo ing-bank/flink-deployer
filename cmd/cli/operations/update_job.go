@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
 	"github.com/spf13/afero"
-	"ing.com/flink-deployer/cmd/cli/flink"
 )
 
 type UpdateJob struct {

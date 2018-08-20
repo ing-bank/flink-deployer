@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
+	"github.com/ing-bank/flink-deployer/cmd/cli/operations"
 	"github.com/spf13/afero"
-	"ing.com/flink-deployer/cmd/cli/flink"
-	"ing.com/flink-deployer/cmd/cli/operations"
 )
 
 var mockedDeployError error

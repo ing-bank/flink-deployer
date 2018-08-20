@@ -5,9 +5,9 @@ import (
 	"flag"
 	"testing"
 
+	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
-	"ing.com/flink-deployer/cmd/cli/flink"
 )
 
 /*

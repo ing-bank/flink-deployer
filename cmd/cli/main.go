@@ -7,10 +7,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
+	"github.com/ing-bank/flink-deployer/cmd/cli/operations"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli"
-	"ing.com/flink-deployer/cmd/cli/flink"
-	"ing.com/flink-deployer/cmd/cli/operations"
 )
 
 var filesystem afero.Fs

@@ -3,7 +3,7 @@ package operations
 import (
 	"net/http"
 
-	"ing.com/flink-deployer/cmd/cli/flink"
+	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
 )
 
 /*

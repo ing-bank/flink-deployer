@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	"ing.com/flink-deployer/cmd/cli/flink"
 )
 
 /*
