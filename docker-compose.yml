@@ -29,21 +29,8 @@ services:
       - jobmanager
       - taskmanager
     # Deploy
-    # command: 
-    #   - "deploy"
-    #   - "--file-name"
-    #   - "/tmp/flink-stateful-wordcount-assembly-0.jar"
-    #   - "--entry-class"
-    #   - "WordCountStateful"
-    #   - "--parallelism"
-    #   - "2"
-    #   - "--program-args"
-    #   - "--intervalMs 1000"
-    # Update
     command: 
-      - "update"
-      - "--job-name-base"
-      - "Windowed WordCount"
+      - "deploy"
       - "--file-name"
       - "/tmp/flink-stateful-wordcount-assembly-0.jar"
       - "--entry-class"
@@ -52,8 +39,21 @@ services:
       - "2"
       - "--program-args"
       - "--intervalMs 1000"
-      - "--savepoint-dir"
-      - "/data/flink"
+    # Update
+    # command: 
+    #   - "update"
+    #   - "--job-name-base"
+    #   - "Windowed WordCount"
+    #   - "--file-name"
+    #   - "/tmp/flink-stateful-wordcount-assembly-0.jar"
+    #   - "--entry-class"
+    #   - "WordCountStateful"
+    #   - "--parallelism"
+    #   - "2"
+    #   - "--program-args"
+    #   - "--intervalMs 1000"
+    #   - "--savepoint-dir"
+    #   - "/data/flink"
     volumes:
       - /tmp/flink-deployer:/data/flink
       - ./flink-sample-job/target/scala-2.11/:/tmp

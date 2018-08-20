@@ -20,10 +20,10 @@ For a full overview of the commands and flags, run `flink-job-deployer help`
 
 To be able to test the deployer locally, follow these steps:
 
-1. Build the CLI tool: `env GOOS=linux GOARCH=amd64 go build ./cmd/cli`
-1. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
-2. `docker-compose up -d jobmanager taskmanager` (start a Flink job- and taskmanager)
-3. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
+1. Build the CLI tool: `env GOOS=linux GOARCH=amd64 go build ./cmd/cli && docker-compose build deployer`
+2. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
+3. `docker-compose up -d jobmanager taskmanager` (start a Flink job- and taskmanager)
+4. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
 
 Repeat step 3 with any commands you'd like to try. 
 
@@ -47,12 +47,13 @@ docker-compose logs -f taskmanager
 Finally if you want to update the job, you can run:
 
 ```bash
-docker-compose run deployer update 
-    -job-name-base "Windowed WordCount" 
-    -file-name "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar" 
-    -run-args "-p 2 -d -c WordCountStateful" 
-    -jar-args "--intervalMs 1000" 
-    -savepoint-dir "/data/flink/savepoints"
+docker-compose run deployer update \
+    --job-name-base "Windowed WordCount" \
+    --file-name "/tmp/flink-stateful-wordcount-assembly-0.jar" \
+    --entry-class "WordCountStateful" \
+    --parallelism "2" \
+    --program-args "--intervalMs 1000" \
+    --savepoint-dir "/data/flink"
 ```
 
 If all went well you should see the word counter continue with where it was.
