@@ -18,7 +18,7 @@ before_install:
 - docker build -t "nielsdenissen/flink-deployer:$TRAVIS_BRANCH" .
 
 script:
-- go test ./cmd/cli -coverprofile=cover.out
+- sh test-with-coverage.sh
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
