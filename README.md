@@ -95,7 +95,7 @@ go test ./cmd/cli ./cmd/cli/flink ./cmd/cli/operations
 Or with coverage:
 
 ```bash
-go test ./cmd/cli ./cmd/cli/flink ./cmd/cli/operations -coverprofile=cover.out && go tool cover -html=cover.out
+sh test-with-coverage.sh
 ```
 
 # Docker
