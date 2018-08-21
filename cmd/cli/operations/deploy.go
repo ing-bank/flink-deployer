@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// Deploy represents the configuration used for
+// deploying a job to the Flink cluster
 type Deploy struct {
 	RemoteFilename        string
 	ApiToken              string
@@ -22,6 +24,7 @@ func (o RealOperator) extractJarIDFromFilename(filename string) string {
 	return parts[len(parts)-1]
 }
 
+// Deploy executes the actual deployment to the Flink cluster
 func (o RealOperator) Deploy(d Deploy) error {
 	log.Println("Starting deploy")
 

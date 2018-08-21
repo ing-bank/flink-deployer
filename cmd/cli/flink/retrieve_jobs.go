@@ -6,8 +6,9 @@ import (
 	"io/ioutil"
 )
 
+// A Job is a representation for a Flink Job
 type Job struct {
-	Id     string `json:"jid"`
+	ID     string `json:"jid"`
 	Name   string `json:"name"`
 	Status string `json:"state"`
 }
@@ -16,6 +17,7 @@ type retrieveJobsResponse struct {
 	Jobs []Job `json:"jobs"`
 }
 
+// RetrieveJobs returns all the jobs on the Flink cluster
 func (c FlinkRestClient) RetrieveJobs() ([]Job, error) {
 	res, err := c.Client.Get(c.constructURL("jobs/overview"))
 	if err != nil {

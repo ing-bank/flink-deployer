@@ -15,6 +15,7 @@ type runJarRequest struct {
 	SavepointPath         string `json:"savepointPath"`
 }
 
+// RunJar executes a specific JAR file with the supplied parameters on the Flink cluster
 func (c FlinkRestClient) RunJar(jarID string, entryClass string, jarArgs string, parallelism int, savepointPath string, allowNonRestoredState bool) error {
 	req := runJarRequest{
 		EntryClass:            entryClass,

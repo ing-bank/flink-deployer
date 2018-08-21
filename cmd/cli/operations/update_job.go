@@ -12,11 +12,13 @@ import (
 	"github.com/spf13/afero"
 )
 
+// UpdateJob represents the configuration used for
+// updating a job on the Flink cluster
 type UpdateJob struct {
 	JobNameBase           string
 	LocalFilename         string
 	RemoteFilename        string
-	ApiToken              string
+	APIToken              string
 	EntryClass            string
 	Parallelism           int
 	ProgramArgs           string
@@ -100,6 +102,7 @@ func (o RealOperator) monitorSavepointCreation(jobID string, requestID string, m
 	return nil
 }
 
+// Update executes the actual update of a job on the Flink cluster
 func (o RealOperator) Update(u UpdateJob) error {
 	if len(u.JobNameBase) == 0 {
 		return errors.New("unspecified argument 'JobNameBase'")
@@ -120,7 +123,7 @@ func (o RealOperator) Update(u UpdateJob) error {
 	deploy := Deploy{
 		LocalFilename:         u.LocalFilename,
 		RemoteFilename:        u.RemoteFilename,
-		ApiToken:              u.ApiToken,
+		ApiToken:              u.APIToken,
 		EntryClass:            u.EntryClass,
 		Parallelism:           u.Parallelism,
 		ProgramArgs:           u.ProgramArgs,
@@ -133,20 +136,20 @@ func (o RealOperator) Update(u UpdateJob) error {
 		log.Printf("found exactly 1 running job with base name: %v\n", u.JobNameBase)
 		job := runningJobs[0]
 
-		log.Printf("creating savepoint for job \"%v\"", job.Id)
-		savepointResponse, err := o.FlinkRestAPI.CreateSavepoint(job.Id, u.SavepointDir)
+		log.Printf("creating savepoint for job \"%v\"", job.ID)
+		savepointResponse, err := o.FlinkRestAPI.CreateSavepoint(job.ID, u.SavepointDir)
 		if err != nil {
-			return fmt.Errorf("failed to create savepoint for job %v due to error: %v", job.Id, err)
+			return fmt.Errorf("failed to create savepoint for job %v due to error: %v", job.ID, err)
 		}
 
-		err = o.monitorSavepointCreation(job.Id, savepointResponse.RequestID, 60)
+		err = o.monitorSavepointCreation(job.ID, savepointResponse.RequestID, 60)
 		if err != nil {
 			return err
 		}
 
-		err = o.FlinkRestAPI.Cancel(job.Id)
+		err = o.FlinkRestAPI.Cancel(job.ID)
 		if err != nil {
-			return fmt.Errorf("job \"%v\" failed to cancel due to: %v", job.Id, err)
+			return fmt.Errorf("job \"%v\" failed to cancel due to: %v", job.ID, err)
 		}
 	default:
 		return fmt.Errorf("job name with base \"%v\" has %v instances running. Aborting update", u.JobNameBase, len(runningJobs))

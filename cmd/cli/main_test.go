@@ -27,7 +27,7 @@ func TestListActionShouldReturnAnErrorWhenTheAPIFails(t *testing.T) {
 func TestListActionShouldReturnNilWhenTheAPISucceeds(t *testing.T) {
 	mockedRetrieveJobsResponse = []flink.Job{
 		flink.Job{
-			Id:     "1",
+			ID:     "1",
 			Name:   "Job A",
 			Status: "RUNNING",
 		},

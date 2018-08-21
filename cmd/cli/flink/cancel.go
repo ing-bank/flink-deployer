@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// Cancel terminates a running job specified by job ID
 func (c FlinkRestClient) Cancel(jobID string) error {
 	req, err := http.NewRequest("PATCH", c.constructURL(fmt.Sprintf("jobs/%v", jobID)), nil)
 	if err != nil {

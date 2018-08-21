@@ -203,7 +203,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheSavepointCannotBeCreated(t *testing.
 	mockedRetrieveJobsError = nil
 	mockedRetrieveJobsResponse = []flink.Job{
 		flink.Job{
-			Id:     "Job-A",
+			ID:     "Job-A",
 			Name:   "WordCountStateful v1.0",
 			Status: "RUNNING",
 		},
@@ -230,7 +230,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheJobCannotBeCanceled(t *testing.T) {
 	mockedRetrieveJobsError = nil
 	mockedRetrieveJobsResponse = []flink.Job{
 		flink.Job{
-			Id:     "Job-A",
+			ID:     "Job-A",
 			Name:   "WordCountStateful v1.0",
 			Status: "RUNNING",
 		},
@@ -270,7 +270,7 @@ func TestUpdateJobShouldReturnNilWhenTheUpdateSucceeds(t *testing.T) {
 	mockedRetrieveJobsError = nil
 	mockedRetrieveJobsResponse = []flink.Job{
 		flink.Job{
-			Id:     "Job-A",
+			ID:     "Job-A",
 			Name:   "WordCountStateful v1.0",
 			Status: "RUNNING",
 		},
@@ -312,12 +312,12 @@ func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.
 	mockedRetrieveJobsError = nil
 	mockedRetrieveJobsResponse = []flink.Job{
 		flink.Job{
-			Id:     "Job-A",
+			ID:     "Job-A",
 			Name:   "WordCountStateful v1.0",
 			Status: "RUNNING",
 		},
 		flink.Job{
-			Id:     "Job-B",
+			ID:     "Job-B",
 			Name:   "WordCountStateful v1.1",
 			Status: "RUNNING",
 		},

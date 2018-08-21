@@ -16,6 +16,7 @@ import (
 var filesystem afero.Fs
 var operator operations.Operator
 
+// ListAction executes the CLI list command
 func ListAction(c *cli.Context) error {
 	jobs, err := operator.RetrieveJobs()
 	if err != nil {
@@ -26,13 +27,14 @@ func ListAction(c *cli.Context) error {
 		log.Println("No running jobs found")
 	} else {
 		for _, job := range jobs {
-			log.Printf("Job %v (%v) with status: %v", job.Name, job.Id, job.Status)
+			log.Printf("Job %v (%v) with status: %v", job.Name, job.ID, job.Status)
 		}
 	}
 
 	return nil
 }
 
+// DeployAction executes the CLI deploy command
 func DeployAction(c *cli.Context) error {
 	deploy := operations.Deploy{}
 
@@ -88,14 +90,15 @@ func DeployAction(c *cli.Context) error {
 	return nil
 }
 
+// UpdateAction executes the CLI update command
 func UpdateAction(c *cli.Context) error {
 	update := operations.UpdateJob{}
 
 	jobNameBase := c.String("job-name-base")
-	if len(jobNameBase) == 0 {
-		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
-	} else {
+	if len(jobNameBase) != 0 {
 		update.JobNameBase = jobNameBase
+	} else {
+		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
 	}
 
 	filename := c.String("file-name")
@@ -113,7 +116,7 @@ func UpdateAction(c *cli.Context) error {
 
 		apiToken := c.String("api-token")
 		if len(apiToken) > 0 {
-			update.ApiToken = apiToken
+			update.APIToken = apiToken
 		}
 	}
 
@@ -135,10 +138,10 @@ func UpdateAction(c *cli.Context) error {
 	}
 
 	savepointDir := c.String("savepoint-dir")
-	if len(savepointDir) == 0 {
-		return cli.NewExitError("unspecified flag 'savepoint-dir'", -1)
-	} else {
+	if len(savepointDir) != 0 {
 		update.SavepointDir = savepointDir
+	} else {
+		return cli.NewExitError("unspecified flag 'savepoint-dir'", -1)
 	}
 
 	update.AllowNonRestoredState = c.Bool("allow-non-restored-state")

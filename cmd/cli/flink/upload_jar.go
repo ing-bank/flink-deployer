@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 )
 
+// UploadJarResponse represents the response body
+// used by the upload JAR API
 type UploadJarResponse struct {
 	Filename string `json:"filename"`
 	Status   string `json:"status"`
@@ -43,6 +45,7 @@ func (c FlinkRestClient) constructUploadJarRequest(filename string, url string) 
 	return c.Client.Post(url, contentType, buffer)
 }
 
+// UploadJar allows for uploading a JAR file to the Flink cluster
 func (c FlinkRestClient) UploadJar(filename string) (UploadJarResponse, error) {
 	res, err := c.constructUploadJarRequest(filename, c.constructURL("jars/upload"))
 	if err != nil {

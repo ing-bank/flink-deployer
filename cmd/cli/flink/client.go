@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+// A FlinkRestClient is a client to interface with
+// the Apache Flink REST API
 type FlinkRestClient struct {
 	BaseURL string
 	Client  *http.Client
