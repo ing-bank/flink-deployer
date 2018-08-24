@@ -2,6 +2,7 @@ package operations
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 )
@@ -10,11 +11,12 @@ import (
 // deploying a job to the Flink cluster
 type Deploy struct {
 	RemoteFilename        string
-	ApiToken              string
+	APIToken              string
 	LocalFilename         string
 	EntryClass            string
 	Parallelism           int
 	ProgramArgs           string
+	SavepointDir          string
 	SavepointPath         string
 	AllowNonRestoredState bool
 }
@@ -27,6 +29,23 @@ func (o RealOperator) extractJarIDFromFilename(filename string) string {
 // Deploy executes the actual deployment to the Flink cluster
 func (o RealOperator) Deploy(d Deploy) error {
 	log.Println("Starting deploy")
+
+	if len(d.SavepointDir) > 0 && len(d.SavepointPath) > 0 {
+		return errors.New("both properties 'SavepointDir' and 'SavepointPath' are specified")
+	}
+
+	if len(d.SavepointDir) > 0 {
+		log.Printf("Using savepoint directory to retrieve the latest savepoint: %v", d.SavepointDir)
+
+		latestSavepoint, err := o.retrieveLatestSavepoint(d.SavepointDir)
+		if err != nil {
+			return fmt.Errorf("retrieving the latest savepoint failed: %v", err)
+		}
+
+		if len(latestSavepoint) != 0 {
+			d.SavepointPath = latestSavepoint
+		}
+	}
 
 	if len(d.SavepointPath) > 0 {
 		log.Printf("Using savepoint for deployment: %v", d.SavepointPath)
@@ -44,7 +63,7 @@ func (o RealOperator) Deploy(d Deploy) error {
 
 	if len(d.RemoteFilename) > 0 {
 		filename = "/tmp/job.jar"
-		_, err := downloadFile(d.RemoteFilename, d.ApiToken, filename)
+		_, err := downloadFile(d.RemoteFilename, d.APIToken, filename)
 		if err != nil {
 			return err
 		}

@@ -54,7 +54,7 @@ func DeployAction(c *cli.Context) error {
 
 		apiToken := c.String("api-token")
 		if len(apiToken) > 0 {
-			deploy.ApiToken = apiToken
+			deploy.APIToken = apiToken
 		}
 	}
 
@@ -74,10 +74,19 @@ func DeployAction(c *cli.Context) error {
 	if len(programArgs) > 0 {
 		deploy.ProgramArgs = programArgs
 	}
+
+	savepointDir := c.String("savepoint-dir")
 	savepointPath := c.String("savepoint-path")
+	if len(savepointDir) > 0 && len(savepointPath) > 0 {
+		return cli.NewExitError("both flags 'savepoint-dir' and 'savepoint-path' specified, only one allowed", -1)
+	}
+	if len(savepointDir) > 0 {
+		deploy.SavepointDir = savepointDir
+	}
 	if len(savepointPath) > 0 {
 		deploy.SavepointPath = savepointPath
 	}
+
 	deploy.AllowNonRestoredState = c.Bool("allow-non-restored-state")
 
 	err := operator.Deploy(deploy)

@@ -4,12 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/cenkalti/backoff"
 	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
-	"github.com/spf13/afero"
 )
 
 // UpdateJob represents the configuration used for
@@ -24,38 +22,6 @@ type UpdateJob struct {
 	ProgramArgs           string
 	SavepointDir          string
 	AllowNonRestoredState bool
-}
-
-func (o RealOperator) retrieveLatestSavepoint(dir string) (string, error) {
-	if strings.HasSuffix(dir, "/") {
-		dir = strings.TrimSuffix(dir, "/")
-	}
-
-	files, err := afero.ReadDir(o.Filesystem, dir)
-	if err != nil {
-		return "", err
-	}
-
-	if len(files) == 0 {
-		return "", errors.New("No savepoints present in directory: " + dir)
-	}
-
-	var newestFile string
-	var newestTime int64 = 0
-	for _, f := range files {
-		filePath := dir + "/" + f.Name()
-		fi, err := o.Filesystem.Stat(filePath)
-		if err != nil {
-			return "", err
-		}
-		currTime := fi.ModTime().Unix()
-		if currTime > newestTime {
-			newestTime = currTime
-			newestFile = filePath
-		}
-	}
-
-	return newestFile, nil
 }
 
 func (o RealOperator) filterRunningJobs(jobs []flink.Job) (ret []flink.Job) {
@@ -123,7 +89,7 @@ func (o RealOperator) Update(u UpdateJob) error {
 	deploy := Deploy{
 		LocalFilename:         u.LocalFilename,
 		RemoteFilename:        u.RemoteFilename,
-		ApiToken:              u.APIToken,
+		APIToken:              u.APIToken,
 		EntryClass:            u.EntryClass,
 		Parallelism:           u.Parallelism,
 		ProgramArgs:           u.ProgramArgs,
