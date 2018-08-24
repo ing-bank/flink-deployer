@@ -205,7 +205,6 @@ func TestUpdateJobShouldReturnAnErrorWhenTheJobCannotBeCanceled(t *testing.T) {
 func TestUpdateJobShouldReturnAnErrorWhenTheLatestSavepointCannotBeRetrieved(t *testing.T) {
 	filesystem := afero.NewMemMapFs()
 	filesystem.Mkdir("/data/flink/", 0755)
-	// afero.WriteFile(filesystem, "/data/flink/savepoint-683b3f-59401d30cfc4", []byte("file a"), 644)
 
 	mockedRetrieveJobsError = nil
 	mockedRetrieveJobsResponse = []flink.Job{
@@ -292,6 +291,26 @@ func TestUpdateJobShouldReturnNilWhenTheUpdateSucceeds(t *testing.T) {
 	})
 
 	assert.Nil(t, err)
+}
+
+func TestUpdateJobShouldReturnAnErrorWhenNoRunningJobsAreFound(t *testing.T) {
+	mockedRetrieveJobsError = nil
+	mockedRetrieveJobsResponse = []flink.Job{}
+
+	operator := RealOperator{
+		FlinkRestAPI: TestFlinkRestClient{
+			BaseURL: "http://localhost",
+			Client:  &http.Client{},
+		},
+	}
+
+	err := operator.Update(UpdateJob{
+		JobNameBase:   "WordCountStateful",
+		LocalFilename: "testdata/sample.jar",
+		SavepointDir:  "/data/flink",
+	})
+
+	assert.EqualError(t, err, "no instance running for job name base \"WordCountStateful\". Aborting update")
 }
 
 func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.T) {

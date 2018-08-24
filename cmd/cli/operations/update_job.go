@@ -97,9 +97,9 @@ func (o RealOperator) Update(u UpdateJob) error {
 	}
 	switch len(runningJobs) {
 	case 0:
-		log.Printf("no instance running for job name base \"%v\". Deploying with last available savepoint\n", u.JobNameBase)
+		return fmt.Errorf("no instance running for job name base \"%v\". Aborting update", u.JobNameBase)
 	case 1:
-		log.Printf("found exactly 1 running job with base name: %v\n", u.JobNameBase)
+		log.Printf("found exactly 1 running job with base name: \"%v\"", u.JobNameBase)
 		job := runningJobs[0]
 
 		log.Printf("creating savepoint for job \"%v\"", job.ID)
