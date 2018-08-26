@@ -225,6 +225,10 @@ func main() {
 					Usage: "The arguments to pass to the program execution",
 				},
 				cli.StringFlag{
+					Name:  "savepoint-dir, sd",
+					Usage: "The path to the directory that contains the savepoints",
+				},
+				cli.StringFlag{
 					Name:  "savepoint-path, sp",
 					Usage: "The path to the savepoint to restore from",
 				},
