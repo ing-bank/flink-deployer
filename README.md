@@ -20,9 +20,10 @@ For a full overview of the commands and flags, run `flink-job-deployer help`
 
 To be able to test the deployer locally, follow these steps:
 
-1. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
-2. `docker-compose up -d jobmanager taskmanager` (start a Flink job- and taskmanager)
-3. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
+1. Build the CLI tool: `env GOOS=linux GOARCH=amd64 go build ./cmd/cli && docker-compose build deployer`
+2. ***optional***: `cd flink-sample-job; sbt clean assembly; cd ..` (Builds a jar with small stateful test job)
+3. `docker-compose up -d jobmanager taskmanager` (start a Flink job- and taskmanager)
+4. `docker-compose run deployer help` (run the Flink deployer with argument `help`)
 
 Repeat step 3 with any commands you'd like to try. 
 
@@ -43,18 +44,9 @@ This will print a simple word count to the output console, you can view it by ch
 docker-compose logs -f taskmanager
 ```
 
-Finally if you want to update the job, you can run:
-
-```bash
-docker-compose run deployer update 
-    -job-name-base "Windowed WordCount" 
-    -file-name "/tmp/flink-sample-job/flink-stateful-wordcount-assembly-0.jar" 
-    -run-args "-p 2 -d -c WordCountStateful" 
-    -jar-args "--intervalMs 1000" 
-    -savepoint-dir "/data/flink/savepoints"
-```
-
 If all went well you should see the word counter continue with where it was.
+
+A list of some example commands to run can be found [here](./docs/example-commands.md).
 
 # Development
 
@@ -88,18 +80,26 @@ docker-compose build deployer
 ## Test
 
 ```bash
-go test
+go test ./cmd/cli ./cmd/cli/flink ./cmd/cli/operations
 ```
 
 Or with coverage:
 
 ```bash
-go test -coverprofile=cover.out && go tool cover
+sh test-with-coverage.sh
 ```
 
 # Docker
 
 A docker image for this repo is available from the docker hub: `nielsdenissen/flink-deployer`
+
+The image expects the following env vars:
+
+```bash
+FLINK_HOST=localhost
+FLINK_PORT=6123
+```
+
 
 # Kubernetes
 
@@ -137,14 +137,10 @@ Here's an example of how such a kubernetes yaml could look like:
                 env:
                 -   name: FLINK_JOB_NAME_BASE
                     value: "${FLINK_JOB_NAME_BASE}"
-                -   name: JOB_MANAGER_RPC_ADDRESS
+                -   name: FLINK_PORT
                     value: "jobmanager"
-                -   name: JOB_MANAGER_RPC_PORT
+                -   name: FLINK_HOST
                     value: "8081"
-                -   name: HIGH_AVAILABILITY
-                    value: "zookeeper"
-                -   name: ZOOKEEPER_QUORUM
-                    value: "zookeeper:2181"
                 -   name: MAIN_CLASS_NAME
                     value: "${MAIN_CLASS_NAME}"
                 -   name: FLINK_JOB_ID

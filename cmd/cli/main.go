@@ -3,33 +3,40 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"time"
 
+	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
+	"github.com/ing-bank/flink-deployer/cmd/cli/operations"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli"
 )
 
 var filesystem afero.Fs
+var operator operations.Operator
 
+// ListAction executes the CLI list command
 func ListAction(c *cli.Context) error {
-	out, err := ListJobs()
-
-	log.Println(string(out))
-
+	jobs, err := operator.RetrieveJobs()
 	if err != nil {
-		return err
+		return cli.NewExitError(fmt.Sprintf("failed to list jobs: %v", err), -1)
+	}
+
+	if len(jobs) == 0 {
+		log.Println("No running jobs found")
+	} else {
+		for _, job := range jobs {
+			log.Printf("Job %v (%v) with status: %v", job.Name, job.ID, job.Status)
+		}
 	}
 
 	return nil
 }
 
+// DeployAction executes the CLI deploy command
 func DeployAction(c *cli.Context) error {
-	deploy := Deploy{}
-
-	runArgs := c.String("run-args")
-	if len(runArgs) > 0 {
-		deploy.runArgs = runArgs
-	}
+	deploy := operations.Deploy{}
 
 	filename := c.String("file-name")
 	remoteFilename := c.String("remote-file-name")
@@ -41,50 +48,68 @@ func DeployAction(c *cli.Context) error {
 	}
 
 	if len(filename) > 0 {
-		deploy.localFilename = filename
+		deploy.LocalFilename = filename
 	} else {
-		deploy.remoteFilename = remoteFilename
+		deploy.RemoteFilename = remoteFilename
 
 		apiToken := c.String("api-token")
 		if len(apiToken) > 0 {
-			deploy.apiToken = apiToken
+			deploy.APIToken = apiToken
 		}
 	}
 
-	jarArgs := c.String("jar-args")
-	if len(jarArgs) > 0 {
-		deploy.jarArgs = jarArgs
+	entryClass := c.String("entry-class")
+	if len(entryClass) > 0 {
+		deploy.EntryClass = entryClass
 	}
+
+	parallelism := c.Int("parallelism")
+	if parallelism != 0 {
+		deploy.Parallelism = parallelism
+	} else {
+		deploy.Parallelism = 1
+	}
+
+	programArgs := c.String("program-args")
+	if len(programArgs) > 0 {
+		deploy.ProgramArgs = programArgs
+	}
+
+	savepointDir := c.String("savepoint-dir")
 	savepointPath := c.String("savepoint-path")
-	if len(savepointPath) > 0 {
-		deploy.savepointPath = savepointPath
+	if len(savepointDir) > 0 && len(savepointPath) > 0 {
+		return cli.NewExitError("both flags 'savepoint-dir' and 'savepoint-path' specified, only one allowed", -1)
 	}
-	deploy.allowNonRestorableState = c.Bool("allow-non-restorable-state")
+	if len(savepointDir) > 0 {
+		deploy.SavepointDir = savepointDir
+	}
+	if len(savepointPath) > 0 {
+		deploy.SavepointPath = savepointPath
+	}
 
-	out, err := deploy.execute()
+	deploy.AllowNonRestoredState = c.Bool("allow-non-restored-state")
 
-	log.Println(string(out))
-
+	err := operator.Deploy(deploy)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
 	}
 
+	log.Println("Job started successfully")
+
 	return nil
 }
 
+// UpdateAction executes the CLI update command
 func UpdateAction(c *cli.Context) error {
-	update := UpdateJob{}
+	update := operations.UpdateJob{}
 
 	jobNameBase := c.String("job-name-base")
-	if len(jobNameBase) == 0 {
-		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
+	if len(jobNameBase) != 0 {
+		update.JobNameBase = jobNameBase
 	} else {
-		update.jobNameBase = jobNameBase
+		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
 	}
-	runArgs := c.String("run-args")
-	if len(runArgs) > 0 {
-		update.runArgs = runArgs
-	}
+
 	filename := c.String("file-name")
 	remoteFilename := c.String("remote-file-name")
 	if len(filename) == 0 && len(remoteFilename) == 0 {
@@ -94,84 +119,69 @@ func UpdateAction(c *cli.Context) error {
 		return cli.NewExitError("both flags 'file-name' and 'remote-file-name' specified, only one allowed", -1)
 	}
 	if len(filename) > 0 {
-		update.localFilename = filename
+		update.LocalFilename = filename
 	} else {
-		update.remoteFilename = remoteFilename
+		update.RemoteFilename = remoteFilename
 
 		apiToken := c.String("api-token")
 		if len(apiToken) > 0 {
-			update.apiToken = apiToken
+			update.APIToken = apiToken
 		}
 	}
-	jarArgs := c.String("jar-args")
-	if len(jarArgs) > 0 {
-		update.jarArgs = jarArgs
-	}
-	savepointDirectory := c.String("savepoint-dir")
-	if len(savepointDirectory) > 0 {
-		update.savepointDirectory = savepointDirectory
-	}
-	update.allowNonRestorableState = c.Bool("allow-non-restorable-state")
 
-	out, err := update.execute()
+	entryClass := c.String("entry-class")
+	if len(entryClass) > 0 {
+		update.EntryClass = entryClass
+	}
 
-	log.Println(string(out))
+	parallelism := c.Int("parallelism")
+	if parallelism != 0 {
+		update.Parallelism = parallelism
+	} else {
+		update.Parallelism = 1
+	}
+
+	programArgs := c.String("program-args")
+	if len(programArgs) > 0 {
+		update.ProgramArgs = programArgs
+	}
+
+	savepointDir := c.String("savepoint-dir")
+	if len(savepointDir) != 0 {
+		update.SavepointDir = savepointDir
+	} else {
+		return cli.NewExitError("unspecified flag 'savepoint-dir'", -1)
+	}
+
+	update.AllowNonRestoredState = c.Bool("allow-non-restored-state")
+
+	err := operator.Update(update)
 
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
 	}
 
-	return nil
-}
-
-func QueryAction(c *cli.Context) error {
-	query := Query{}
-
-	jobName := c.String("job-name")
-	if len(jobName) == 0 {
-		return cli.NewExitError("unspecified flag 'job-name'", -1)
-	} else {
-		query.jobName = jobName
-	}
-	filename := c.String("file-name")
-	if len(filename) == 0 {
-		return cli.NewExitError("unspecified flag 'file-name'", -1)
-	} else {
-		query.filename = filename
-	}
-	mainClass := c.String("main-class")
-	if len(mainClass) == 0 {
-		return cli.NewExitError("unspecified flag 'main-class'", -1)
-	} else {
-		query.mainClass = mainClass
-	}
-	jobmanagerAddress := c.String("jobmanager-address")
-	if len(jobmanagerAddress) == 0 {
-		return cli.NewExitError("unspecified flag 'jobmanager-address'", -1)
-	} else {
-		query.jobManagerRPCAddress = jobmanagerAddress
-	}
-	jobmanagerPort := c.Int("jobmanager-port")
-	if jobmanagerPort <= 0 {
-		return cli.NewExitError("unspecified flag 'jobmanager-port'", -1)
-	} else {
-		query.jobManagerRPCPort = jobmanagerPort
-	}
-
-	out, err := query.execute()
-
-	log.Println(string(out))
-
-	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
-	}
+	log.Println("Job successfully updated")
 
 	return nil
 }
 
 func main() {
-	commander = RealCommander{}
-	filesystem = afero.NewOsFs()
+	flinkBaseURL := os.Getenv("FLINK_BASE_URL")
+	if len(flinkBaseURL) == 0 {
+		log.Fatal("`FLINK_BASE_URL` environment variable not found")
+		os.Exit(1)
+	}
+
+	operator = operations.RealOperator{
+		Filesystem: afero.NewOsFs(),
+		FlinkRestAPI: flink.FlinkRestClient{
+			BaseURL: flinkBaseURL,
+			Client: &http.Client{
+				Timeout: time.Second * 2,
+			},
+		},
+	}
 
 	app := cli.NewApp()
 	app.Name = "flink-deployer"
@@ -196,27 +206,35 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "remote-file-name, rfn",
-					Usage: "The location of a remote job JAR file to be downloaded",
+					Usage: "The location of a GitLab job JAR file to be downloaded",
 				},
 				cli.StringFlag{
 					Name:  "api-token, at",
-					Usage: "The API token for the remote address of the a remote file",
+					Usage: "The GitLab API token for the remote address of the a remote file",
 				},
 				cli.StringFlag{
-					Name:  "run-args, ra",
-					Usage: "The arguments to pass to the 'flink run' command",
+					Name:  "entry-class, ec",
+					Usage: "The entry class name that contains the main method",
 				},
 				cli.StringFlag{
-					Name:  "jar-args, ja",
-					Usage: "The arguments to pass to the jar execution",
+					Name:  "parallelism, p",
+					Usage: "The parallelism count",
+				},
+				cli.StringFlag{
+					Name:  "program-args, pa",
+					Usage: "The arguments to pass to the program execution",
+				},
+				cli.StringFlag{
+					Name:  "savepoint-dir, sd",
+					Usage: "The path to the directory that contains the savepoints",
 				},
 				cli.StringFlag{
 					Name:  "savepoint-path, sp",
 					Usage: "The path to the savepoint to restore from",
 				},
 				cli.BoolFlag{
-					Name:  "allow-non-restorable-state, anrs",
-					Usage: "Allow non restored savepoint state in case an operator has been removed from the job.",
+					Name:  "allow-non-restored-state, anrs",
+					Usage: "Allow the job to run if the state cannot be restored",
 				},
 			},
 			Action: DeployAction,
@@ -236,58 +254,34 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "remote-file-name, rfn",
-					Usage: "The location of a remote job JAR file to be downloaded",
+					Usage: "The location of a GitLab job JAR file to be downloaded",
 				},
 				cli.StringFlag{
 					Name:  "api-token, at",
-					Usage: "The API token for the remote address of the a remote file",
+					Usage: "The GitLab API token for the remote address of the a remote file",
 				},
 				cli.StringFlag{
-					Name:  "run-args, ra",
-					Usage: "The arguments to pass to the 'flink run' command",
+					Name:  "entry-class, ec",
+					Usage: "The entry class name that contains the main method",
 				},
 				cli.StringFlag{
-					Name:  "jar-args, ja",
-					Usage: "The arguments to pass to the jar execution",
+					Name:  "parallelism, p",
+					Usage: "The parallelism count",
+				},
+				cli.StringFlag{
+					Name:  "program-args, pa",
+					Usage: "The arguments to pass to the program execution",
 				},
 				cli.StringFlag{
 					Name:  "savepoint-dir, sd",
-					Usage: "The path to the directory where Flink stores all savepoints",
+					Usage: "The path to the directory that contains the savepoints",
 				},
 				cli.BoolFlag{
-					Name:  "allow-non-restorable-state, anrs",
-					Usage: "The savepoint directory to restore a savepoint from",
+					Name:  "allow-non-restored-state, anrs",
+					Usage: "Allow the job to run if the state cannot be restored",
 				},
 			},
 			Action: UpdateAction,
-		},
-		{
-			Name:    "query",
-			Aliases: []string{"q"},
-			Usage:   "run a query against a job's state",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "job-name, jn",
-					Usage: "The name of the job to update",
-				},
-				cli.StringFlag{
-					Name:  "file-name, fn",
-					Usage: "The complete name of the job JAR file",
-				},
-				cli.StringFlag{
-					Name:  "main-class, mc",
-					Usage: "The package and class name of the main class",
-				},
-				cli.StringFlag{
-					Name:  "jobmanager-address, ja",
-					Usage: "The Job Manager RPC address to use",
-				},
-				cli.IntFlag{
-					Name:  "jobmanager-port, jp",
-					Usage: "The Job Manager RPC port to use",
-				},
-			},
-			Action: QueryAction,
 		},
 	}
 
