@@ -102,8 +102,7 @@ A docker image for this repo is available from the docker hub: `nielsdenissen/fl
 The image expects the following env vars:
 
 ```bash
-FLINK_HOST=localhost
-FLINK_PORT=6123
+FLINK_BASE_URL=http://localhost:8080
 ```
 
 
