@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
 	"github.com/ing-bank/flink-deployer/cmd/cli/operations"
 	"github.com/spf13/afero"
@@ -187,13 +188,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	client := retryablehttp.NewClient()
+	client.HTTPClient = &http.Client{
+		Timeout: time.Second * time.Duration(flinkAPITimeoutSeconds),
+	}
+
 	operator = operations.RealOperator{
 		Filesystem: afero.NewOsFs(),
 		FlinkRestAPI: flink.FlinkRestClient{
 			BaseURL: flinkBaseURL,
-			Client: &http.Client{
-				Timeout: time.Second * time.Duration(flinkAPITimeoutSeconds),
-			},
+			Client:  client,
 		},
 	}
 

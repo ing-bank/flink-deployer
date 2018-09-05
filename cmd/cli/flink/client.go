@@ -2,14 +2,15 @@ package flink
 
 import (
 	"fmt"
-	"net/http"
+
+	retryablehttp "github.com/hashicorp/go-retryablehttp"
 )
 
 // A FlinkRestClient is a client to interface with
 // the Apache Flink REST API
 type FlinkRestClient struct {
 	BaseURL string
-	Client  *http.Client
+	Client  *retryablehttp.Client
 }
 
 func (c FlinkRestClient) constructURL(path string) string {
