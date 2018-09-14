@@ -1,1 +1,2 @@
 flink-sample-job/
+!flink-sample-job/target/scala-2.11/flink-stateful-wordcount-assembly-0.jar 

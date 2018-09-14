@@ -184,9 +184,9 @@ func main() {
 	}
 
 	app := cli.NewApp()
-	app.Name = "flink-deployer"
+	app.Name = "Flink Deployer"
 	app.Description = "A Go command-line utility to facilitate deployments to Apache Flink"
-	app.Version = "0.1.0"
+	app.Version = "1.0.0"
 
 	app.Commands = []cli.Command{
 		{
