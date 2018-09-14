@@ -158,7 +158,9 @@ spec:
             value: "http://flink-jobmanager:8081"
 ```
 
-In order to use local images with Minikube (so images on your local docker installation instead of dockerHub), you need to perform the following steps:
+Go to Kubernetes, click the `Create +` button and copy paste the above YAML. This should trigger a POD to be deployed that runs once and stops after deploying the sample job to the Flink cluster running in Kubernetes.
+
+**MINIKUBE USERS**: In order to use local images with Minikube (so images on your local docker installation instead of dockerHub), you need to perform the following steps:
 - Point minikube to your local docker: `eval $(minikube docker-env)` (See [this guide](https://blogmilind.wordpress.com/2018/01/30/running-local-docker-images-in-kubernetes/) for more info)
 - Rebuild the image as done in step 2 of this guide.
 - The `imagePullPolicy` in the yaml above must be set to `Never`.
