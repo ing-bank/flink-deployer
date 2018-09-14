@@ -152,7 +152,7 @@ spec:
         - "2"
         - "--program-args"
         - "--intervalMs 1000"
-        imagePullPolicy: Always
+        imagePullPolicy: Never
         env:
         -   name: FLINK_BASE_URL
             value: "http://flink-jobmanager:8081"

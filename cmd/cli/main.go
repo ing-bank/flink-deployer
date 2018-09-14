@@ -178,7 +178,7 @@ func main() {
 		FlinkRestAPI: flink.FlinkRestClient{
 			BaseURL: flinkBaseURL,
 			Client: &http.Client{
-				Timeout: time.Second * 2,
+				Timeout: time.Second * 10,
 			},
 		},
 	}
