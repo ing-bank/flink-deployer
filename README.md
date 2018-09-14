@@ -16,7 +16,7 @@ Currently, it supports several features:
 
 For a full overview of the commands and flags, run `flink-job-deployer help`
 
-## How to run locally
+## <a name="howtorunlocally"></a>How to run locally
 
 To be able to test the deployer locally, follow these steps:
 
@@ -123,7 +123,8 @@ Flink has a guide on how to run a cluster in Kubernetes, you can find it [here](
 
 We now need to package the jar into the container so we can deploy it in Kubernetes. There are other ways around this like storing the jar on a Persistent Volume or downloading it at runtime inside the container. This is the easiest getting started though and still the technique we use.
 
-To build the container with the jar packaged you can use the following Dockerfile_with_testjob. Run this from the root of this repository:
+To build the container with the jar packaged you can use the following Dockerfile_with_testjob. Be sure to have create the jar for the test job in case you want to use it. See step 2 in the [How to run locally](#howtorunlocally) section.
+Run this from the root of this repository:
  
     docker build -t flinkdeployerstatefulwordcount:test -f Dockerfile_with_testjob .
 
