@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
@@ -173,12 +174,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	var flinkAPITimeoutSeconds = int64(10)
+
+	flinkAPITimeoutSecondsInt, err := strconv.ParseInt(os.Getenv("FLINK_API_TIMEOUT_SECONDS"), 10, 64)
+	if err == nil {
+		flinkAPITimeoutSeconds = flinkAPITimeoutSecondsInt
+	}
+
 	operator = operations.RealOperator{
 		Filesystem: afero.NewOsFs(),
 		FlinkRestAPI: flink.FlinkRestClient{
 			BaseURL: flinkBaseURL,
 			Client: &http.Client{
-				Timeout: time.Second * 10,
+				Timeout: time.Second * time.Duration(flinkAPITimeoutSeconds),
 			},
 		},
 	}

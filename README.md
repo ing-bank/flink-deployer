@@ -48,6 +48,11 @@ If all went well you should see the word counter continue with where it was.
 
 A list of some example commands to run can be found [here](./docs/example-commands.md).
 
+## Supported environment variables
+
+* FLINK_BASE_URL: Base Url to Flink's API (**required**, e.g. http://jobmanageraddress:8081/)
+* FLINK_API_TIMEOUT_SECONDS: Number of seconds until requests to the Flink API time out (e.g. 10)
+
 # Development
 
 ## Managing dependencies
