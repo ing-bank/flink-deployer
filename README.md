@@ -16,7 +16,7 @@ Currently, it supports several features:
 
 For a full overview of the commands and flags, run `flink-job-deployer help`
 
-## How to run locally
+## <a name="howtorunlocally"></a>How to run locally
 
 To be able to test the deployer locally, follow these steps:
 
@@ -105,63 +105,83 @@ FLINK_PORT=6123
 
 When running in Kubernetes (or Openshift), you'll have to deploy the container to the cluster. A reason for this is Flink will try to reroute you to the internal Kubernetes address of the cluster, which doesn't resolve from outside. Besides that it'll give you the necessary access to the stored savepoints when you're using persistent volumes to store those.
 
-Here's an example of how such a kubernetes yaml could look like:
+This section is aimed at providing you with a quick getting started guide to deploy our container to Kubernetes. There are a few steps we'll need to take which we describe below:
+
+## 0. Run a kubernetes cluster
+
+If you don't have a kubernetes cluster readily available, you can quickly get started by setting up a [minikube cluster](https://kubernetes.io/docs/setup/minikube/).
+
+    minikube start
+
+## 1. Setup a Flink cluster in Kubernetes
+
+Flink has a guide on how to run a cluster in Kubernetes, you can find it [here](https://ci.apache.org/projects/flink/flink-docs-stable/ops/deployment/kubernetes.html).
+
+>If you're using Minikube, be sure to pull the images that flink uses in their deploy configurations locally first. Otherwise minikube will not be able to find them. So perform a `docker pull flink:latest` on your host.
+
+## 2. Add the test jar (or your own job you want to run) to the deployer image
+
+We now need to package the jar into the container so we can deploy it in Kubernetes. There are other ways around this like storing the jar on a Persistent Volume or downloading it at runtime inside the container. This is the easiest getting started though and still the technique we use.
+
+To build the container with the jar packaged you can use the `Dockerfile-including-sample-job`. Be sure to have create the jar for the test job in case you want to use it. See step 2 in the [How to run locally](#howtorunlocally) section.
+Run this from the root of this repository:
+ 
+    docker build -t flinkdeployerstatefulwordcount:test -f Dockerfile-including-sample-job .
+
+## 3. Run the deployer in Kubernetes
+
+In this example we're going to show how you can do a simple deploy of the sample-job in this project to the cluster. For this we need a yaml that specifies what to do to Kubernetes. Here's an example of how such a kubernetes yaml could look like:
 
 ```yaml
-    apiVersion: v1
-    kind: Template
-    objects:
-    -   apiVersion: v1
-        kind: Pod
-        metadata:
-            generateName: "flink-${FLINK_JOB_ID}-deployer-"
-        spec:
-            dnsPolicy: ClusterFirst
-            restartPolicy: OnFailure
-            containers:
-            -   name: "flink-${FLINK_JOB_ID}-deployer"
-                image: "nielsdenissen/flink-deployer"
-                args:
-                - "update"
-                - "-job-name-base"
-                - "$(FLINK_JOB_NAME_BASE)"
-                - "-file-name"
-                - "/tmp/YOUR-FLINK-JAR.jar"
-                - "-run-args"
-                - "-p 2 -d -c $(MAIN_CLASS_NAME)"
-                - "-jar-args"
-                - "--your.jar.args here"
-                - "-savepoint-dir"
-                - "/data/flink/savepoints/$(FLINK_JOB_ID)"
-                imagePullPolicy: Always
-                env:
-                -   name: FLINK_JOB_NAME_BASE
-                    value: "${FLINK_JOB_NAME_BASE}"
-                -   name: FLINK_PORT
-                    value: "jobmanager"
-                -   name: FLINK_HOST
-                    value: "8081"
-                -   name: MAIN_CLASS_NAME
-                    value: "${MAIN_CLASS_NAME}"
-                -   name: FLINK_JOB_ID
-                    value: "${FLINK_JOB_ID}"
-                volumeMounts:
-                -   name: flink-data
-                    mountPath: "/data/flink"
-            volumes:
-            -   name: flink-data
-                persistentVolumeClaim:
-                    claimName: "${PVC_FLINK}"
-    parameters:
-    -   name: FLINK_JOB_ID
-        description: The ID to use for pod name and savepoint directory
-    -   name: FLINK_JOB_NAME_BASE
-        description: The job name base (you can append a version number behind this base in your actual job name)
-    -   name: MAIN_CLASS_NAME
-        description: Name of the main class to be run in the JAR
-    -   name: PVC_FLINK
-        description: The persistent volume claim name for flink.
+apiVersion: v1
+kind: Pod
+metadata:
+    generateName: "flink-stateful-wordcount-deployer-"
+spec:
+    dnsPolicy: ClusterFirst
+    restartPolicy: OnFailure
+    containers:
+    -   name: "flink-stateful-wordcount-deployer"
+        image: "flinkdeployerstatefulwordcount:test"
+        args:
+        - "deploy"
+        - "--file-name"
+        - "/tmp/flink-stateful-wordcount-assembly-0.jar"
+        - "--entry-class"
+        - "WordCountStateful"
+        - "--parallelism"
+        - "2"
+        - "--program-args"
+        - "--intervalMs 1000"
+        imagePullPolicy: Never
+        env:
+        -   name: FLINK_BASE_URL
+            value: "http://flink-jobmanager:8081"
 ```
+
+Go to Kubernetes, click the `Create +` button and copy paste the above YAML. This should trigger a POD to be deployed that runs once and stops after deploying the sample job to the Flink cluster running in Kubernetes.
+
+**MINIKUBE USERS**: In order to use local images with Minikube (so images on your local docker installation instead of dockerHub), you need to perform the following steps:
+- Point minikube to your local docker: `eval $(minikube docker-env)` (See [this guide](https://blogmilind.wordpress.com/2018/01/30/running-local-docker-images-in-kubernetes/) for more info)
+- Rebuild the image as done in step 2 of this guide.
+- The `imagePullPolicy` in the yaml above must be set to `Never`.
+
+## 4. Attach Persistent Volumes to all Flink containers
+
+This step we won't outline completely, as it's a bit more involved for a getting started guide. In order to recover jobs from savepoints, you'll need to have a Persistent Volume shared among all Flink nodes and the deployer. You'll need this in any case if you want to persistent and thus not lose any data in your Flink cluster running in Kubernetes.
+After creating a Persistent Volume and hooking it up to the existing Flink containers, you'll need to add something like the following to the YAML of the deployer (besides of course change the command to for instance `update`):
+
+```yaml
+        volumeMounts:
+        -   name: flink-data
+            mountPath: "/data/flink"
+    volumes:
+    -   name: flink-data
+        persistentVolumeClaim:
+            claimName: "PVC_FLINK"
+```
+
+The directory you put in your Persistent Volume should be the directory to which Flink stores it's savepoints.
 
 # Copyright
 
