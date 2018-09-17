@@ -176,9 +176,10 @@ func main() {
 
 	var flinkAPITimeoutSeconds = int64(10)
 
-	flinkAPITimeoutSecondsInt, err := strconv.ParseInt(os.Getenv("FLINK_API_TIMEOUT_SECONDS"), 10, 64)
-	if err == nil {
-		flinkAPITimeoutSeconds = flinkAPITimeoutSecondsInt
+	flinkAPITimeoutSeconds, err := strconv.ParseInt(os.Getenv("FLINK_API_TIMEOUT_SECONDS"), 10, 64)
+	if err != nil {
+		log.Fatalf("`FLINK_API_TIMEOUT_SECONDS=%v` environment variable could not be parsed to an integer", os.Getenv("FLINK_API_TIMEOUT_SECONDS"))
+		os.Exit(1)
 	}
 
 	operator = operations.RealOperator{
