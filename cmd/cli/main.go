@@ -167,6 +167,13 @@ func UpdateAction(c *cli.Context) error {
 	return nil
 }
 
+func getAPITimeoutSeconds() (int64, error) {
+	if len(os.Getenv("FLINK_API_TIMEOUT_SECONDS")) > 0 {
+		return strconv.ParseInt(os.Getenv("FLINK_API_TIMEOUT_SECONDS"), 10, 64)
+	}
+	return int64(10), nil
+}
+
 func main() {
 	flinkBaseURL := os.Getenv("FLINK_BASE_URL")
 	if len(flinkBaseURL) == 0 {
@@ -174,17 +181,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	var flinkAPITimeoutSeconds int64
-	if len(os.Getenv("FLINK_API_TIMEOUT_SECONDS")) > 0 {
-		flinkAPITimeoutSecondsParseInt, err := strconv.ParseInt(os.Getenv("FLINK_API_TIMEOUT_SECONDS"), 10, 64)
-		if err != nil {
-			log.Fatalf("`FLINK_API_TIMEOUT_SECONDS=%v` environment variable could not be parsed to an integer", os.Getenv("FLINK_API_TIMEOUT_SECONDS"))
-			os.Exit(1)
-		} else {
-			flinkAPITimeoutSeconds = flinkAPITimeoutSecondsParseInt
-		}
-	} else {
-		flinkAPITimeoutSeconds = int64(10)
+	flinkAPITimeoutSeconds, err := getAPITimeoutSeconds()
+	if err != nil {
+		log.Fatalf("`FLINK_API_TIMEOUT_SECONDS=%v` environment variable could not be parsed to an integer", os.Getenv("FLINK_API_TIMEOUT_SECONDS"))
+		os.Exit(1)
 	}
 
 	operator = operations.RealOperator{
