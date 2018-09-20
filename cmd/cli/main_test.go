@@ -11,18 +11,21 @@ import (
 	"github.com/urfave/cli"
 )
 
-func TestGetAPITimeoutSecondsWithoutEnv(t *testing.T) {
+/*
+ * Get API Timeout
+ */
+func TestGetAPITimeOutSecondsShouldReturnTheDefaultValueIfTheEnvVarIsUnset(t *testing.T) {
 	timeout, _ := getAPITimeoutSeconds()
 	assert.Equal(t, int64(10), timeout)
 }
 
-func TestGetAPITimeoutSecondsWithEnv(t *testing.T) {
+func TestGetAPITimeOutSecondsShouldReturnTheParsedValueFromTheEnvVar(t *testing.T) {
 	os.Setenv("FLINK_API_TIMEOUT_SECONDS", "20")
 	timeout, _ := getAPITimeoutSeconds()
 	assert.Equal(t, int64(20), timeout)
 }
 
-func TestGetAPITimeoutSecondsWithInvalidEnv(t *testing.T) {
+func TestGetAPITimeOutSecondsShouldReturnAnErrorIfTheEnvVarValueCannotBeParsed(t *testing.T) {
 	os.Setenv("FLINK_API_TIMEOUT_SECONDS", "bla")
 	_, err := getAPITimeoutSeconds()
 	assert.EqualError(t, err, "strconv.ParseInt: parsing \"bla\": invalid syntax")
