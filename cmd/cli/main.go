@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
@@ -166,10 +167,23 @@ func UpdateAction(c *cli.Context) error {
 	return nil
 }
 
+func getAPITimeoutSeconds() (int64, error) {
+	if len(os.Getenv("FLINK_API_TIMEOUT_SECONDS")) > 0 {
+		return strconv.ParseInt(os.Getenv("FLINK_API_TIMEOUT_SECONDS"), 10, 64)
+	}
+	return int64(10), nil
+}
+
 func main() {
 	flinkBaseURL := os.Getenv("FLINK_BASE_URL")
 	if len(flinkBaseURL) == 0 {
 		log.Fatal("`FLINK_BASE_URL` environment variable not found")
+		os.Exit(1)
+	}
+
+	flinkAPITimeoutSeconds, err := getAPITimeoutSeconds()
+	if err != nil {
+		log.Fatalf("`FLINK_API_TIMEOUT_SECONDS=%v` environment variable could not be parsed to an integer", os.Getenv("FLINK_API_TIMEOUT_SECONDS"))
 		os.Exit(1)
 	}
 
@@ -178,7 +192,7 @@ func main() {
 		FlinkRestAPI: flink.FlinkRestClient{
 			BaseURL: flinkBaseURL,
 			Client: &http.Client{
-				Timeout: time.Second * 10,
+				Timeout: time.Second * time.Duration(flinkAPITimeoutSeconds),
 			},
 		},
 	}

@@ -1,7 +1,8 @@
 [![Build Status](https://travis-ci.org/ing-bank/flink-deployer.svg?branch=master)](https://travis-ci.org/ing-bank/flink-deployer)
 [![codecov.io](http://codecov.io/github/ing-bank/flink-deployer/coverage.svg?branch=master)](https://codecov.io/gh/ing-bank/flink-deployer?branch=master)
-[![](https://images.microbadger.com/badges/image/nielsdenissen/flink-deployer:master.svg)](https://microbadger.com/images/nielsdenissen/flink-deployer:master)
-[![](https://images.microbadger.com/badges/version/nielsdenissen/flink-deployer:master.svg)](https://microbadger.com/images/nielsdenissen/flink-deployer:master)
+[![](https://images.microbadger.com/badges/image/nielsdenissen/flink-deployer:master.svg)](https://hub.docker.com/r/nielsdenissen/flink-deployer/)
+[![](https://images.microbadger.com/badges/version/nielsdenissen/flink-deployer:master.svg)](https://hub.docker.com/r/nielsdenissen/flink-deployer/)
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/Flink-Deployer/Lobby)
 
 # Flink-deployer
 
@@ -47,6 +48,11 @@ docker-compose logs -f taskmanager
 If all went well you should see the word counter continue with where it was.
 
 A list of some example commands to run can be found [here](./docs/example-commands.md).
+
+## Supported environment variables
+
+* FLINK_BASE_URL: Base Url to Flink's API (**required**, e.g. http://jobmanageraddress:8081/)
+* FLINK_API_TIMEOUT_SECONDS: Number of seconds until requests to the Flink API time out (e.g. 10)
 
 # Development
 

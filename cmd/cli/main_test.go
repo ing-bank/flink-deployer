@@ -3,12 +3,33 @@ package main
 import (
 	"errors"
 	"flag"
+	"os"
 	"testing"
 
 	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
+
+/*
+ * Get API Timeout
+ */
+func TestGetAPITimeOutSecondsShouldReturnTheDefaultValueIfTheEnvVarIsUnset(t *testing.T) {
+	timeout, _ := getAPITimeoutSeconds()
+	assert.Equal(t, int64(10), timeout)
+}
+
+func TestGetAPITimeOutSecondsShouldReturnTheParsedValueFromTheEnvVar(t *testing.T) {
+	os.Setenv("FLINK_API_TIMEOUT_SECONDS", "20")
+	timeout, _ := getAPITimeoutSeconds()
+	assert.Equal(t, int64(20), timeout)
+}
+
+func TestGetAPITimeOutSecondsShouldReturnAnErrorIfTheEnvVarValueCannotBeParsed(t *testing.T) {
+	os.Setenv("FLINK_API_TIMEOUT_SECONDS", "bla")
+	_, err := getAPITimeoutSeconds()
+	assert.EqualError(t, err, "strconv.ParseInt: parsing \"bla\": invalid syntax")
+}
 
 /*
  * ListAction
