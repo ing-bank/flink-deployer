@@ -15,13 +15,24 @@ env:
 
 before_install:
 - env GOOS=linux GOARCH=amd64 go build ./cmd/cli
-- docker build -t "nielsdenissen/flink-deployer:$TRAVIS_BRANCH" .
 
 script:
 - sh test-with-coverage.sh
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
-- docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD";
-  docker push "nielsdenissen/flink-deployer:$TRAVIS_BRANCH";
-  if [ "${TRAVIS_BRANCH}" == "master" ]; then docker tag nielsdenissen/flink-deployer:$TRAVIS_BRANCH nielsdenissen/flink-deployer:latest; docker push nielsdenissen/flink-deployer:latest; fi
+
+before_deploy:
+- docker build -t "nielsdenissen/flink-deployer:$TRAVIS_BRANCH" .
+- docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+- docker tag "nielsdenissen/flink-deployer:$TRAVIS_BRANCH" "nielsdenissen/flink-deployer:latest"
+
+deploy:
+- provider: script
+  script: docker push "nielsdenissen/flink-deployer:$TRAVIS_BRANCH"
+  on:
+    branch: master
+- provider: script
+  script: docker push "nielsdenissen/flink-deployer:$TRAVIS_BRANCH" && docker push "nielsdenissen/flink-deployer:latest"
+  on:
+    tags: true
