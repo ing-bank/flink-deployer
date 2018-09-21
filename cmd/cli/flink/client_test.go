@@ -8,11 +8,12 @@ import (
 	"strings"
 	"testing"
 
+	retryablehttp "github.com/hashicorp/go-retryablehttp"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConstructUrlShouldProperlyFormTheCompleteURL(t *testing.T) {
-	api := FlinkRestClient{"http://localhost:80", &http.Client{}}
+	api := FlinkRestClient{"http://localhost:80", &retryablehttp.Client{}}
 
 	url := api.constructURL("jobs")
 

@@ -2,12 +2,13 @@ package flink
 
 import (
 	"fmt"
-	"net/http"
+
+	retryablehttp "github.com/hashicorp/go-retryablehttp"
 )
 
 // Cancel terminates a running job specified by job ID
 func (c FlinkRestClient) Cancel(jobID string) error {
-	req, err := http.NewRequest("PATCH", c.constructURL(fmt.Sprintf("jobs/%v", jobID)), nil)
+	req, err := retryablehttp.NewRequest("PATCH", c.constructURL(fmt.Sprintf("jobs/%v", jobID)), nil)
 	if err != nil {
 		return err
 	}
