@@ -1,2 +1,7 @@
-flink-sample-job/
+# Exclude everything
+**
+
+# Whitelist
+!cmd
+!vendor
 !flink-sample-job/target/
