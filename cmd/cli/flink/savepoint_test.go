@@ -12,7 +12,7 @@ import (
  * Create Savepoint
  */
 func TestCreateSavepointReturnsAnErrorWhenTheStatusIsNot202(t *testing.T) {
-	server := createTestServerWithBodyCheck(t, "/jobs/1/savepoints", `{"target-directory":"/data/flink","cancel-job":false}`, http.StatusOK, "{}")
+	server := createTestServerWithBodyCheck(t, "/jobs/1/savepoints", `{"cancel-job":true,"target-directory":"/data/flink"}`, http.StatusOK, "{}")
 	defer server.Close()
 
 	api := FlinkRestClient{server.URL, retryablehttp.NewClient()}
@@ -22,7 +22,7 @@ func TestCreateSavepointReturnsAnErrorWhenTheStatusIsNot202(t *testing.T) {
 }
 
 func TestCreateSavepointReturnsAnErrorWhenItCannotDeserializeTheResponseAsJSON(t *testing.T) {
-	server := createTestServerWithBodyCheck(t, "/jobs/1/savepoints", `{"target-directory":"/data/flink","cancel-job":false}`, http.StatusAccepted, `{"jobs: []}`)
+	server := createTestServerWithBodyCheck(t, "/jobs/1/savepoints", `{"cancel-job":true,"target-directory":"/data/flink"}`, http.StatusAccepted, `{"jobs: []}`)
 	defer server.Close()
 
 	api := FlinkRestClient{server.URL, retryablehttp.NewClient()}
@@ -32,7 +32,7 @@ func TestCreateSavepointReturnsAnErrorWhenItCannotDeserializeTheResponseAsJSON(t
 }
 
 func TestCreateSavepointCorrectlyReturnsARequestID(t *testing.T) {
-	server := createTestServerWithBodyCheck(t, "/jobs/1/savepoints", `{"target-directory":"/data/flink","cancel-job":false}`, http.StatusAccepted, `{"request-id": "1"}`)
+	server := createTestServerWithBodyCheck(t, "/jobs/1/savepoints", `{"cancel-job":true,"target-directory":"/data/flink"}`, http.StatusAccepted, `{"request-id": "1"}`)
 	defer server.Close()
 
 	api := FlinkRestClient{server.URL, retryablehttp.NewClient()}

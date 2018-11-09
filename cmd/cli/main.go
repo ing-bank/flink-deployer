@@ -77,14 +77,7 @@ func DeployAction(c *cli.Context) error {
 		deploy.ProgramArgs = programArgs
 	}
 
-	savepointDir := c.String("savepoint-dir")
 	savepointPath := c.String("savepoint-path")
-	if len(savepointDir) > 0 && len(savepointPath) > 0 {
-		return cli.NewExitError("both flags 'savepoint-dir' and 'savepoint-path' specified, only one allowed", -1)
-	}
-	if len(savepointDir) > 0 {
-		deploy.SavepointDir = savepointDir
-	}
 	if len(savepointPath) > 0 {
 		deploy.SavepointPath = savepointPath
 	}
@@ -152,7 +145,7 @@ func UpdateAction(c *cli.Context) error {
 	if len(savepointDir) != 0 {
 		update.SavepointDir = savepointDir
 	} else {
-		return cli.NewExitError("unspecified flag 'savepoint-dir'", -1)
+		update.SavepointDir = ""
 	}
 
 	update.AllowNonRestoredState = c.Bool("allow-non-restored-state")

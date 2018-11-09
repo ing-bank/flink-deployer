@@ -90,20 +90,6 @@ func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilename
 	assert.EqualError(t, err, "both flags 'file-name' and 'remote-file-name' specified, only one allowed")
 }
 
-func TestDeployActionShouldThrowAnErrorWhenBothTheSavepointDirAndSavepointPathArgumentsAreSet(t *testing.T) {
-	operator = TestOperator{}
-
-	app := cli.App{}
-	set := flag.FlagSet{}
-	set.String("file-name", "file.jar", "")
-	set.String("savepoint-dir", "/data/flink", "")
-	set.String("savepoint-path", "/data/flink/savepoint-abc", "")
-	context := cli.NewContext(&app, &set, nil)
-	err := DeployAction(context)
-
-	assert.EqualError(t, err, "both flags 'savepoint-dir' and 'savepoint-path' specified, only one allowed")
-}
-
 func TestDeployActionShouldThrowAnErrorWhenTheCommandFails(t *testing.T) {
 	mockedDeployError = errors.New("failed")
 	operator = TestOperator{}

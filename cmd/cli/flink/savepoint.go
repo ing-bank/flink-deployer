@@ -7,10 +7,7 @@ import (
 	"io/ioutil"
 )
 
-type createSavepointRequest struct {
-	TargetDirectory string `json:"target-directory"`
-	CancelJob       bool   `json:"cancel-job"`
-}
+type createSavepointRequest map[string]interface{}
 
 // CreateSavepointResponse represents the response body
 // used by the create savepoint API
@@ -19,11 +16,13 @@ type CreateSavepointResponse struct {
 }
 
 // CreateSavepoint creates a savepoint for a job specified by job ID
-func (c FlinkRestClient) CreateSavepoint(jobID string, savepointPath string) (CreateSavepointResponse, error) {
-	req := createSavepointRequest{
-		TargetDirectory: savepointPath,
-		CancelJob:       false,
+func (c FlinkRestClient) CreateSavepoint(jobID string, savepointDir string) (CreateSavepointResponse, error) {
+	req := make(map[string]interface{})
+	if len(savepointDir) > 0 {
+		// The target-directory attribute has to be omitted if the cluster-default savepoint directory should be used
+		req["target-directory"] = savepointDir
 	}
+	req["cancel-job"] = true
 
 	reqBody := new(bytes.Buffer)
 	json.NewEncoder(reqBody).Encode(req)
@@ -63,6 +62,12 @@ type SavepointCreationStatus struct {
 // used by the savepoint monitoring API
 type MonitorSavepointCreationResponse struct {
 	Status SavepointCreationStatus `json:"status"`
+	Operation SavepointCreationOperation `json:"operation"`
+}
+
+type SavepointCreationOperation struct {
+	Location string `json:"location"`
+	FailureCause string `json:"failure-cause"`
 }
 
 // MonitorSavepointCreation allows for monitoring the status of a savepoint creation

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+	"strings"
 
 	"github.com/cenkalti/backoff"
 	"github.com/ing-bank/flink-deployer/cmd/cli/flink"
@@ -24,19 +25,21 @@ type UpdateJob struct {
 	AllowNonRestoredState bool
 }
 
-func (o RealOperator) filterRunningJobs(jobs []flink.Job) (ret []flink.Job) {
+func (o RealOperator) filterJobsByRunningAndNameBase(jobs []flink.Job, jobNameBase string) (ret []flink.Job) {
 	for _, job := range jobs {
-		if job.Status == "RUNNING" {
+		if job.Status == "RUNNING" && strings.HasPrefix(job.Name, jobNameBase){
 			ret = append(ret, job)
 		}
 	}
 	return
 }
 
-func (o RealOperator) monitorSavepointCreation(jobID string, requestID string, maxElapsedTime int) error {
+func (o RealOperator) monitorSavepointCreation(jobID string, requestID string, maxElapsedTime int) (flink.MonitorSavepointCreationResponse, error) {
+	tmp := flink.MonitorSavepointCreationResponse{}
 	op := func() error {
 		log.Println("checking status of savepoint creation")
 		res, err := o.FlinkRestAPI.MonitorSavepointCreation(jobID, requestID)
+		tmp = res
 		if err != nil {
 			return err
 		}
@@ -60,12 +63,12 @@ func (o RealOperator) monitorSavepointCreation(jobID string, requestID string, m
 	}
 	err := backoff.Retry(op, b)
 	if err != nil {
-		return fmt.Errorf("failed to create savepoint for job \"%v\" within %v seconds", jobID, b.MaxElapsedTime.Seconds())
+		return flink.MonitorSavepointCreationResponse{}, fmt.Errorf("failed to create savepoint for job \"%v\" within %v seconds", jobID, b.MaxElapsedTime.Seconds())
 	}
 
 	b.Reset()
 
-	return nil
+	return tmp, nil
 }
 
 // Update executes the actual update of a job on the Flink cluster
@@ -73,18 +76,15 @@ func (o RealOperator) Update(u UpdateJob) error {
 	if len(u.JobNameBase) == 0 {
 		return errors.New("unspecified argument 'JobNameBase'")
 	}
-	if len(u.SavepointDir) == 0 {
-		return errors.New("unspecified argument 'SavepointDir'")
-	}
 
-	log.Printf("starting job update for base name '%v' and savepoint dir '%v'\n", u.JobNameBase, u.SavepointDir)
+	log.Printf("starting job update for base name '%v'\n", u.JobNameBase)
 
 	jobs, err := o.FlinkRestAPI.RetrieveJobs()
 	if err != nil {
 		return fmt.Errorf("retrieving jobs failed: %v", err)
 	}
 
-	runningJobs := o.filterRunningJobs(jobs)
+	runningJobs := o.filterJobsByRunningAndNameBase(jobs, u.JobNameBase)
 
 	deploy := Deploy{
 		LocalFilename:         u.LocalFilename,
@@ -108,26 +108,20 @@ func (o RealOperator) Update(u UpdateJob) error {
 			return fmt.Errorf("failed to create savepoint for job %v due to error: %v", job.ID, err)
 		}
 
-		err = o.monitorSavepointCreation(job.ID, savepointResponse.RequestID, 60)
+		savepointStateResponse, err := o.monitorSavepointCreation(job.ID, savepointResponse.RequestID, 60)
 		if err != nil {
 			return err
 		}
 
-		err = o.FlinkRestAPI.Cancel(job.ID)
-		if err != nil {
-			return fmt.Errorf("job \"%v\" failed to cancel due to: %v", job.ID, err)
+		deploy.SavepointPath = savepointStateResponse.Operation.Location
+
+		if len(deploy.SavepointPath) == 0 {
+			return errors.New("Savepoint creation failed")
 		}
+
+		log.Printf("created savepoint \"%v\"", savepointStateResponse.Operation.Location)
 	default:
 		return fmt.Errorf("job name with base \"%v\" has %v instances running. Aborting update", u.JobNameBase, len(runningJobs))
-	}
-
-	latestSavepoint, err := o.retrieveLatestSavepoint(u.SavepointDir)
-	if err != nil {
-		return fmt.Errorf("retrieving the latest savepoint failed: %v", err)
-	}
-
-	if len(latestSavepoint) != 0 {
-		deploy.SavepointPath = latestSavepoint
 	}
 
 	err = o.Deploy(deploy)

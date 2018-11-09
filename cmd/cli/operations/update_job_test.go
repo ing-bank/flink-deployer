@@ -11,39 +11,59 @@ import (
 )
 
 /*
- * filterRunningJobs
+ * filterJobsByRunningAndNameBase
  */
-func TestFilterRunningJobsShouldReturnAnEmptySliceIfNoJobsWereProvided(t *testing.T) {
+func TestFilterByRunningAndNameBaseShouldReturnAnEmptySliceIfNoJobsWereProvided(t *testing.T) {
 	operator := RealOperator{}
 
-	res := operator.filterRunningJobs([]flink.Job{})
+	res := operator.filterJobsByRunningAndNameBase([]flink.Job{}, "")
 
 	assert.Len(t, res, 0)
 }
 
-func TestFilterRunningJobsShouldReturnAnEmptySliceIfNoJobsAreRunning(t *testing.T) {
+func TestFilterByRunningAndNameBaseShouldReturnAnEmptySliceIfNoJobsAreRunning(t *testing.T) {
 	operator := RealOperator{}
 
-	res := operator.filterRunningJobs([]flink.Job{
+	res := operator.filterJobsByRunningAndNameBase([]flink.Job{
 		flink.Job{
 			Status: "STOPPED",
+			Name: "Prefix_Suffix",
 		},
-	})
+	},"Prefix")
 
 	assert.Len(t, res, 0)
 }
 
-func TestFilterRunningJobsShouldReturnTheRunningJobs(t *testing.T) {
+func TestFilterByRunningAndNameBaseShouldReturnRunningJobsWithCorrectPrefix(t *testing.T) {
 	operator := RealOperator{}
 
-	res := operator.filterRunningJobs([]flink.Job{
+	res := operator.filterJobsByRunningAndNameBase([]flink.Job{
 		flink.Job{
-			Status: "STOPPED",
+			Status: "RUNNING",
+			Name: "Prefix_Suffix",
 		},
 		flink.Job{
 			Status: "RUNNING",
+			Name: "Dummy_Suffix",
 		},
-	})
+	},"Prefix")
+
+	assert.Len(t, res, 1)
+}
+
+func TestFilterByRunningAndNameBaseShouldReturnTheRunningJobs(t *testing.T) {
+	operator := RealOperator{}
+
+	res := operator.filterJobsByRunningAndNameBase([]flink.Job{
+		flink.Job{
+			Status: "STOPPED",
+			Name: "Prefix_Suffix",
+		},
+		flink.Job{
+			Status: "RUNNING",
+			Name: "Prefix_Suffix",
+		},
+	}, "")
 
 	assert.Len(t, res, 1)
 }
@@ -61,7 +81,7 @@ func TestMonitorSavepointCreationShouldReturnAnErrorWhenTheSavepointFailsToBeCre
 		},
 	}
 
-	err := operator.monitorSavepointCreation("job-id", "request-id", 1)
+	_, err := operator.monitorSavepointCreation("job-id", "request-id", 1)
 
 	assert.EqualError(t, err, "failed to create savepoint for job \"job-id\" within 1 seconds")
 }
@@ -81,7 +101,7 @@ func TestMonitorSavepointCreationShouldReturnNilWhenTheSavepointIsCreated(t *tes
 		},
 	}
 
-	err := operator.monitorSavepointCreation("job-id", "request-id", 1)
+	_, err := operator.monitorSavepointCreation("job-id", "request-id", 1)
 
 	assert.Nil(t, err)
 }
@@ -102,22 +122,6 @@ func TestUpdateJobShouldReturnAnErrorWhenTheJobNameBaseIsUndefined(t *testing.T)
 	})
 
 	assert.EqualError(t, err, "unspecified argument 'JobNameBase'")
-}
-
-func TestUpdateJobShouldReturnAnErrorWhenTheSavepointDirectoryIsUndefined(t *testing.T) {
-	operator := RealOperator{
-		FlinkRestAPI: TestFlinkRestClient{
-			BaseURL: "http://localhost",
-			Client:  &http.Client{},
-		},
-	}
-
-	err := operator.Update(UpdateJob{
-		JobNameBase:   "WordCountStateful",
-		LocalFilename: "testdata/sample.jar",
-	})
-
-	assert.EqualError(t, err, "unspecified argument 'SavepointDir'")
 }
 
 func TestUpdateJobShouldReturnAnErrorWhenRetrievingTheJobsFails(t *testing.T) {
@@ -199,52 +203,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheJobCannotBeCanceled(t *testing.T) {
 		SavepointDir:  "/data/flink",
 	})
 
-	assert.EqualError(t, err, "job \"Job-A\" failed to cancel due to: failed")
-}
-
-func TestUpdateJobShouldReturnAnErrorWhenTheLatestSavepointCannotBeRetrieved(t *testing.T) {
-	filesystem := afero.NewMemMapFs()
-	filesystem.Mkdir("/data/flink/", 0755)
-
-	mockedRetrieveJobsError = nil
-	mockedRetrieveJobsResponse = []flink.Job{
-		flink.Job{
-			ID:     "Job-A",
-			Name:   "WordCountStateful v1.0",
-			Status: "RUNNING",
-		},
-	}
-	mockedCreateSavepointError = nil
-	mockedCreateSavepointResponse = flink.CreateSavepointResponse{
-		RequestID: "request-id",
-	}
-	mockedMonitorSavepointCreationResponse = flink.MonitorSavepointCreationResponse{
-		Status: flink.SavepointCreationStatus{
-			Id: "COMPLETED",
-		},
-	}
-	mockedCancelError = nil
-	mockedUploadJarResponse = flink.UploadJarResponse{
-		Filename: "/data/flink/sample.jar",
-		Status:   "success",
-	}
-	mockedRunJarError = nil
-
-	operator := RealOperator{
-		Filesystem: filesystem,
-		FlinkRestAPI: TestFlinkRestClient{
-			BaseURL: "http://localhost",
-			Client:  &http.Client{},
-		},
-	}
-
-	err := operator.Update(UpdateJob{
-		JobNameBase:   "WordCountStateful",
-		LocalFilename: "../testdata/sample.jar",
-		SavepointDir:  "/data/flink",
-	})
-
-	assert.EqualError(t, err, "retrieving the latest savepoint failed: No savepoints present in directory: /data/flink")
+	assert.EqualError(t, err, "Savepoint creation failed")
 }
 
 func TestUpdateJobShouldReturnNilWhenTheUpdateSucceeds(t *testing.T) {
@@ -267,6 +226,9 @@ func TestUpdateJobShouldReturnNilWhenTheUpdateSucceeds(t *testing.T) {
 	mockedMonitorSavepointCreationResponse = flink.MonitorSavepointCreationResponse{
 		Status: flink.SavepointCreationStatus{
 			Id: "COMPLETED",
+		},
+		Operation: flink.SavepointCreationOperation{
+			Location: "Flink Forward Berlin 18",
 		},
 	}
 	mockedCancelError = nil

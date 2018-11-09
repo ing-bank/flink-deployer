@@ -2,7 +2,6 @@ package operations
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 )
@@ -16,7 +15,6 @@ type Deploy struct {
 	EntryClass            string
 	Parallelism           int
 	ProgramArgs           string
-	SavepointDir          string
 	SavepointPath         string
 	AllowNonRestoredState bool
 }
@@ -30,26 +28,7 @@ func (o RealOperator) extractJarIDFromFilename(filename string) string {
 func (o RealOperator) Deploy(d Deploy) error {
 	log.Println("Starting deploy")
 
-	if len(d.SavepointDir) > 0 && len(d.SavepointPath) > 0 {
-		return errors.New("both properties 'SavepointDir' and 'SavepointPath' are specified")
-	}
-
-	if len(d.SavepointDir) > 0 {
-		log.Printf("Using savepoint directory to retrieve the latest savepoint: %v", d.SavepointDir)
-
-		latestSavepoint, err := o.retrieveLatestSavepoint(d.SavepointDir)
-		if err != nil {
-			return fmt.Errorf("retrieving the latest savepoint failed: %v", err)
-		}
-
-		if len(latestSavepoint) != 0 {
-			d.SavepointPath = latestSavepoint
-		}
-	}
-
-	if len(d.SavepointPath) > 0 {
-		log.Printf("Using savepoint for deployment: %v", d.SavepointPath)
-	}
+	log.Printf("Using savepoint for deployment: %v", d.SavepointPath)
 
 	if d.AllowNonRestoredState == true {
 		log.Printf("Allowing non restorable state")
