@@ -49,9 +49,17 @@ If all went well you should see the word counter continue with where it was.
 
 A list of some example commands to run can be found [here](./docs/example-commands.md).
 
+## Authentication
+
+Apache Flink doesn't support any Web UI authentication out of the box. One of the custom approaches is using NGINX in front of Flink to protect the user interface. With NGINX, there are again a lot of different ways to add that authentication layer. To support the most basic one, we've added support for using Basic Authentication.
+
+You can inject the `FLINK_BASIC_AUTH_USERNAME` and `FLINK_BASIC_AUTH_PASSWORD` environment variables to configure basic authentication.
+
 ## Supported environment variables
 
 * FLINK_BASE_URL: Base Url to Flink's API (**required**, e.g. http://jobmanageraddress:8081/)
+* FLINK_BASIC_AUTH_USERNAME: Basic authentication username used for authenticating to Flink 
+* FLINK_BASIC_AUTH_PASSWORD: Basic authentication password used for authenticating to Flink 
 * FLINK_API_TIMEOUT_SECONDS: Number of seconds until requests to the Flink API time out (e.g. 10)
 
 # Development
