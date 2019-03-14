@@ -20,15 +20,21 @@ type CreateSavepointResponse struct {
 
 // CreateSavepoint creates a savepoint for a job specified by job ID
 func (c FlinkRestClient) CreateSavepoint(jobID string, savepointPath string) (CreateSavepointResponse, error) {
-	req := createSavepointRequest{
+	createSavepointRequest := createSavepointRequest{
 		TargetDirectory: savepointPath,
 		CancelJob:       false,
 	}
 
 	reqBody := new(bytes.Buffer)
-	json.NewEncoder(reqBody).Encode(req)
+	json.NewEncoder(reqBody).Encode(createSavepointRequest)
 
-	res, err := c.Client.Post(c.constructURL(fmt.Sprintf("jobs/%v/savepoints", jobID)), "application/json", reqBody)
+	req, err := c.newRequest("POST", c.constructURL(fmt.Sprintf("jobs/%v/savepoints", jobID)), reqBody)
+	if err != nil {
+		return CreateSavepointResponse{}, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.Client.Do(req)
 	if err != nil {
 		return CreateSavepointResponse{}, err
 	}
