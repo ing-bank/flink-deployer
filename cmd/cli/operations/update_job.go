@@ -38,6 +38,7 @@ func (o RealOperator) monitorSavepointCreation(jobID string, requestID string, m
 		log.Println("checking status of savepoint creation")
 		res, err := o.FlinkRestAPI.MonitorSavepointCreation(jobID, requestID)
 		if err != nil {
+			log.Println(err)
 			return err
 		}
 
@@ -45,9 +46,13 @@ func (o RealOperator) monitorSavepointCreation(jobID string, requestID string, m
 		case "COMPLETED":
 			return nil
 		case "IN_PROGRESS":
-			return fmt.Errorf("savepoint creation for job \"%v\" is still pending", jobID)
+			err = fmt.Errorf("savepoint creation for job \"%v\" is still pending", jobID)
+			log.Println(err)
+			return err
 		default:
-			return fmt.Errorf("savepoint creation for job \"%v\" returned an unknown status \"%v\"", jobID, res.Status)
+			err = fmt.Errorf("savepoint creation for job \"%v\" returned an unknown status \"%v\"", jobID, res.Status)
+			log.Println(err)
+			return err
 		}
 	}
 	b := &backoff.ExponentialBackOff{
