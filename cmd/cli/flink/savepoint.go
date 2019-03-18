@@ -74,7 +74,12 @@ type MonitorSavepointCreationResponse struct {
 // MonitorSavepointCreation allows for monitoring the status of a savepoint creation
 // identified by the job ID and request ID
 func (c FlinkRestClient) MonitorSavepointCreation(jobID string, requestID string) (MonitorSavepointCreationResponse, error) {
-	res, err := c.Client.Get(c.constructURL(fmt.Sprintf("jobs/%v/savepoints/%v", jobID, requestID)))
+	req, err := c.newRequest("GET", c.constructURL(fmt.Sprintf("jobs/%v/savepoints/%v", jobID, requestID)), nil)
+	if err != nil {
+		return MonitorSavepointCreationResponse{}, err
+	}
+
+	res, err := c.Client.Do(req)
 	if err != nil {
 		return MonitorSavepointCreationResponse{}, err
 	}
