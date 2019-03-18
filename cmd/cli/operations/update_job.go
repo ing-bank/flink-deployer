@@ -24,7 +24,7 @@ type UpdateJob struct {
 	AllowNonRestoredState bool
 }
 
-func (o RealOperator) filterRunningJobs(jobs []flink.Job) (ret []flink.Job) {
+func (o RealOperator) filterRunningJobsByName(jobs []flink.Job, jobNameBase string) (ret []flink.Job) {
 	for _, job := range jobs {
 		if job.Status == "RUNNING" {
 			ret = append(ret, job)
@@ -89,7 +89,7 @@ func (o RealOperator) Update(u UpdateJob) error {
 		return fmt.Errorf("retrieving jobs failed: %v", err)
 	}
 
-	runningJobs := o.filterRunningJobs(jobs)
+	runningJobs := o.filterRunningJobsByName(jobs, u.JobNameBase)
 
 	deploy := Deploy{
 		LocalFilename:         u.LocalFilename,

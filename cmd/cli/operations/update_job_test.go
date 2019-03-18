@@ -11,12 +11,12 @@ import (
 )
 
 /*
- * filterRunningJobs
+ * filterRunningJobsByName
  */
 func TestFilterRunningJobsShouldReturnAnEmptySliceIfNoJobsWereProvided(t *testing.T) {
 	operator := RealOperator{}
 
-	res := operator.filterRunningJobs([]flink.Job{})
+	res := operator.filterRunningJobsByName([]flink.Job{}, "test")
 
 	assert.Len(t, res, 0)
 }
@@ -24,11 +24,11 @@ func TestFilterRunningJobsShouldReturnAnEmptySliceIfNoJobsWereProvided(t *testin
 func TestFilterRunningJobsShouldReturnAnEmptySliceIfNoJobsAreRunning(t *testing.T) {
 	operator := RealOperator{}
 
-	res := operator.filterRunningJobs([]flink.Job{
+	res := operator.filterRunningJobsByName([]flink.Job{
 		flink.Job{
 			Status: "STOPPED",
 		},
-	})
+	}, "test")
 
 	assert.Len(t, res, 0)
 }
@@ -36,14 +36,16 @@ func TestFilterRunningJobsShouldReturnAnEmptySliceIfNoJobsAreRunning(t *testing.
 func TestFilterRunningJobsShouldReturnTheRunningJobs(t *testing.T) {
 	operator := RealOperator{}
 
-	res := operator.filterRunningJobs([]flink.Job{
+	res := operator.filterRunningJobsByName([]flink.Job{
 		flink.Job{
 			Status: "STOPPED",
+			Name:   "test",
 		},
 		flink.Job{
 			Status: "RUNNING",
+			Name:   "test",
 		},
-	})
+	}, "test")
 
 	assert.Len(t, res, 1)
 }
