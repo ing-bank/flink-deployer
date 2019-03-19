@@ -26,7 +26,7 @@ type UpdateJob struct {
 
 func (o RealOperator) filterRunningJobsByName(jobs []flink.Job, jobNameBase string) (ret []flink.Job) {
 	for _, job := range jobs {
-		if job.Status == "RUNNING" {
+		if job.Status == "RUNNING" && job.Name == jobNameBase {
 			ret = append(ret, job)
 		}
 	}
