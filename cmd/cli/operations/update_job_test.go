@@ -62,7 +62,7 @@ func TestFilterRunningJobsShouldReturnTheRunningJobsMatchingTheJobBaseName(t *te
 		[]flink.Job{
 			flink.Job{
 				Status: "STOPPED",
-				Name:   "jobA",
+				Name:   "jobA v1.0",
 			},
 			flink.Job{
 				Status: "RUNNING",
@@ -70,7 +70,7 @@ func TestFilterRunningJobsShouldReturnTheRunningJobsMatchingTheJobBaseName(t *te
 			},
 			flink.Job{
 				Status: "RUNNING",
-				Name:   "jobA",
+				Name:   "jobA v1.1",
 			},
 		},
 		"jobA",

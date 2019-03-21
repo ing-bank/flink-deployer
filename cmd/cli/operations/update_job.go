@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/cenkalti/backoff"
@@ -26,7 +27,7 @@ type UpdateJob struct {
 
 func (o RealOperator) filterRunningJobsByName(jobs []flink.Job, jobNameBase string) (ret []flink.Job) {
 	for _, job := range jobs {
-		if job.Status == "RUNNING" && job.Name == jobNameBase {
+		if job.Status == "RUNNING" && strings.HasPrefix(job.Name, jobNameBase) {
 			ret = append(ret, job)
 		}
 	}
