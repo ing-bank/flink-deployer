@@ -371,10 +371,10 @@ func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.
 	// flink-deployer wont want to update (stop/start) an undesired job
 	// when there are two running jobs with same name. So it must abort the update
 	err := operator.Update(UpdateJob{
-		JobNameBase:   "WordCountStateful v1.0",
+		JobNameBase:   "WordCountStateful",
 		LocalFilename: "testdata/sample.jar",
 		SavepointDir:  "/data/flink",
 	})
 
-	assert.EqualError(t, err, "job name with base \"WordCountStateful v1.0\" has 2 instances running. Aborting update")
+	assert.EqualError(t, err, "job name with base \"WordCountStateful\" has 2 instances running. Aborting update")
 }
