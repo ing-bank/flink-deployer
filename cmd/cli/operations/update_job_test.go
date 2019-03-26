@@ -202,7 +202,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheSavepointCannotBeCreated(t *testing.
 func TestUpdateJobShouldReturnAnErrorWhenTheJobCannotBeCanceled(t *testing.T) {
 	mockedRetrieveJobsError = nil
 	mockedRetrieveJobsResponse = []flink.Job{
-		flink.Job{
+		{
 			ID:     "Job-A",
 			Name:   "WordCountStateful v1.0",
 			Status: "RUNNING",
@@ -217,7 +217,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheJobCannotBeCanceled(t *testing.T) {
 			Id: "COMPLETED",
 		},
 	}
-	mockedCancelError = errors.New("failed")
+	mockedTerminateError = errors.New("failed")
 
 	operator := RealOperator{
 		FlinkRestAPI: TestFlinkRestClient{
@@ -256,7 +256,7 @@ func TestUpdateJobShouldReturnAnErrorWhenTheLatestSavepointCannotBeRetrieved(t *
 			Id: "COMPLETED",
 		},
 	}
-	mockedCancelError = nil
+	mockedTerminateError = nil
 	mockedUploadJarResponse = flink.UploadJarResponse{
 		Filename: "/data/flink/sample.jar",
 		Status:   "success",
@@ -302,7 +302,7 @@ func TestUpdateJobShouldReturnNilWhenTheUpdateSucceeds(t *testing.T) {
 			Id: "COMPLETED",
 		},
 	}
-	mockedCancelError = nil
+	mockedTerminateError = nil
 	mockedUploadJarResponse = flink.UploadJarResponse{
 		Filename: "/data/flink/sample.jar",
 		Status:   "success",
