@@ -168,6 +168,34 @@ func UpdateAction(c *cli.Context) error {
 	return nil
 }
 
+// TerminateAction executes the CLI terminate command
+func TerminateAction(c *cli.Context) error {
+	terminate := operations.TerminateJob{}
+
+	jobNameBase := c.String("job-name-base")
+	if len(jobNameBase) != 0 {
+		terminate.JobNameBase = jobNameBase
+	} else {
+		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
+	}
+
+	mode := c.String("mode")
+	if len(mode) > 0 && mode != "cancel" && mode != "stop" {
+		return cli.NewExitError("unknown flag 'mode', only `cancel` and `stop` supported", -1)
+	}
+
+	terminate.Mode = mode
+	err := operator.Terminate(terminate)
+
+	if err != nil {
+		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
+	}
+
+	log.Println("Job successfully terminated")
+
+	return nil
+}
+
 func getAPITimeoutSeconds() (int64, error) {
 	if len(os.Getenv("FLINK_API_TIMEOUT_SECONDS")) > 0 {
 		return strconv.ParseInt(os.Getenv("FLINK_API_TIMEOUT_SECONDS"), 10, 64)
@@ -300,6 +328,22 @@ func main() {
 				},
 			},
 			Action: UpdateAction,
+		},
+		{
+			Name:    "terminate",
+			Aliases: []string{"t"},
+			Usage:   "Terminate a running job",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "job-name-base, jnb",
+					Usage: "The base name of the job to update",
+				},
+				cli.StringFlag{
+					Name:  "mode, m",
+					Usage: "The mode to terminate a running job, `cancel` and `stop` supported",
+				},
+			},
+			Action: TerminateAction,
 		},
 	}
 

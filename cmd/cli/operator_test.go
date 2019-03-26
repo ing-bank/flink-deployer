@@ -8,6 +8,7 @@ import (
 
 var mockedDeployError error
 var mockedUpdateError error
+var mockedTerminateError error
 var mockedRetrieveJobsResponse []flink.Job
 var mockedRetrieveJobsError error
 
@@ -21,6 +22,10 @@ func (t TestOperator) Deploy(d operations.Deploy) error {
 }
 
 func (t TestOperator) Update(u operations.UpdateJob) error {
+	return mockedUpdateError
+}
+
+func (t TestOperator) Terminate(te operations.TerminateJob) error {
 	return mockedUpdateError
 }
 

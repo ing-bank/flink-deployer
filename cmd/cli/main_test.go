@@ -64,6 +64,34 @@ func TestListActionShouldReturnNilWhenTheAPISucceeds(t *testing.T) {
 }
 
 /*
+ * TerminateAction
+ */
+func TestTerminateActionShouldThrowAnErrorWhenJobNameBaseMissing(t *testing.T) {
+	mockedUpdateError = nil
+	operator = TestOperator{}
+
+	app := cli.App{}
+	set := flag.FlagSet{}
+	context := cli.NewContext(&app, &set, nil)
+	err := TerminateAction(context)
+
+	assert.EqualError(t, err, "unspecified flag 'job-name-base'")
+}
+
+func TestTerminateActionShouldThrowAnErrorWhenModeUnknown(t *testing.T) {
+	operator = TestOperator{}
+
+	app := cli.App{}
+	set := flag.FlagSet{}
+	set.String("job-name-base", "a job", "")
+	set.String("mode", "not_exist_mode", "")
+	context := cli.NewContext(&app, &set, nil)
+	err := TerminateAction(context)
+
+	assert.EqualError(t, err, "unknown flag 'mode', only `cancel` and `stop` supported")
+}
+
+/*
  * DeployAction
  */
 func TestDeployActionShouldThrowAnErrorWhenBothTheLocalFilenameAndRemoteFilenameArgumentsAreMissing(t *testing.T) {
