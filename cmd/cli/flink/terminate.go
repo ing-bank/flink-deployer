@@ -45,6 +45,9 @@ func (c FlinkRestClient) Terminate(jobID string, mode string) error {
 
 	res, err := c.Client.Do(req)
 
+	defer res.Body.Close()
+
+
 	if err != nil {
 		return err
 	}

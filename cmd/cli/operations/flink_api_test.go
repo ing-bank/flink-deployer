@@ -10,7 +10,6 @@ import (
  * Flink REST API mocking
  */
 
-var mockedCancelError error
 var mockedTerminateError error
 var mockedCreateSavepointResponse flink.CreateSavepointResponse
 var mockedCreateSavepointError error
@@ -27,9 +26,6 @@ type TestFlinkRestClient struct {
 	Client  *http.Client
 }
 
-func (c TestFlinkRestClient) Cancel(jobID string) error {
-	return mockedCancelError
-}
 func (c TestFlinkRestClient) Terminate(jobID string, mode string) error {
 	return mockedTerminateError
 }

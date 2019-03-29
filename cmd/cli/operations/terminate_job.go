@@ -5,14 +5,14 @@ import (
 	"fmt"
 )
 
-// UpdateJob represents the configuration used for
-// updating a job on the Flink cluster
+// TerminateJob represents the configuration used for
+// terminate a job on the Flink cluster
 type TerminateJob struct {
 	JobNameBase string
 	Mode        string
 }
 
-// Update executes the actual update of a job on the Flink cluster
+// Terminate executes the actual termination of a job on the Flink cluster
 func (o RealOperator) Terminate(t TerminateJob) error {
 	if len(t.JobNameBase) == 0 {
 		return errors.New("unspecified argument 'JobNameBase'")
