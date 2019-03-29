@@ -1,6 +1,7 @@
 package flink
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -19,19 +20,34 @@ func (c FlinkRestClient) Terminate(jobID string, mode string) error {
 		url = c.constructURL(fmt.Sprintf("jobs/%v", jobID))
 	}
 
-	req, err := http.NewRequest("PATCH", url, nil)
+	req, err := c.newRequest("PATCH", url, nil)
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return err
 	}
 
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		panic(err)
+	// set retry policy: do not retry when status code is 500. (indicating the job is not stoppable)
+	c.Client.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (b bool, e error) {
+		if ctx.Err() != nil {
+			return false, ctx.Err()
+		}
+
+		if err != nil {
+			return true, err
+		}
+
+		if resp.StatusCode == 0 || resp.StatusCode > 500 {
+			return true, nil
+		}
+
+		return false, nil
 	}
 
-	defer res.Body.Close()
+	res, err := c.Client.Do(req)
+
+	if err != nil {
+		return err
+	}
 
 	if res.StatusCode != 202 {
 		body, err := ioutil.ReadAll(res.Body)

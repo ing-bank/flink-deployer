@@ -3,7 +3,7 @@ package flink
 import (
 	"fmt"
 
-	retryablehttp "github.com/hashicorp/go-retryablehttp"
+	"github.com/hashicorp/go-retryablehttp"
 )
 
 // A FlinkRestClient is a client to interface with

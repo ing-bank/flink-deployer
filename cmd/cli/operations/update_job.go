@@ -119,7 +119,7 @@ func (o RealOperator) Update(u UpdateJob) error {
 			return err
 		}
 
-		err = o.FlinkRestAPI.Cancel(job.ID)
+		err = o.FlinkRestAPI.Terminate(job.ID, "cancel")
 		if err != nil {
 			return fmt.Errorf("job \"%v\" failed to cancel due to: %v", job.ID, err)
 		}
