@@ -210,6 +210,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	flinkBasicAuthUsername := os.Getenv("FLINK_BASIC_AUTH_USERNAME")
+	flinkBasicAuthPassword := os.Getenv("FLINK_BASIC_AUTH_PASSWORD")
+
 	flinkAPITimeoutSeconds, err := getAPITimeoutSeconds()
 	if err != nil {
 		log.Fatalf("`FLINK_API_TIMEOUT_SECONDS=%v` environment variable could not be parsed to an integer", os.Getenv("FLINK_API_TIMEOUT_SECONDS"))
@@ -224,8 +227,10 @@ func main() {
 	operator = operations.RealOperator{
 		Filesystem: afero.NewOsFs(),
 		FlinkRestAPI: flink.FlinkRestClient{
-			BaseURL: flinkBaseURL,
-			Client:  client,
+			BaseURL:           flinkBaseURL,
+			BasicAuthUsername: flinkBasicAuthUsername,
+			BasicAuthPassword: flinkBasicAuthPassword,
+			Client:            client,
 		},
 	}
 

@@ -42,7 +42,13 @@ func (c FlinkRestClient) constructUploadJarRequest(filename string, url string) 
 	contentType := writer.FormDataContentType()
 	writer.Close()
 
-	return c.Client.Post(url, contentType, buffer)
+	req, err := c.newRequest("POST", url, buffer)
+	if err != nil {
+		return &http.Response{}, err
+	}
+	req.Header.Set("Content-Type", contentType)
+
+	return c.Client.Do(req)
 }
 
 // UploadJar allows for uploading a JAR file to the Flink cluster

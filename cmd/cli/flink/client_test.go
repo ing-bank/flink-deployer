@@ -13,11 +13,61 @@ import (
 )
 
 func TestConstructUrlShouldProperlyFormTheCompleteURL(t *testing.T) {
-	api := FlinkRestClient{"http://localhost:80", &retryablehttp.Client{}}
+	api := FlinkRestClient{
+		BaseURL: "http://localhost:80",
+		Client:  &retryablehttp.Client{},
+	}
 
 	url := api.constructURL("jobs")
 
 	assert.Equal(t, "http://localhost:80/jobs", url)
+}
+
+func TestNewRequestShouldAddTheBasicAuthenticationHeadersWhenTheCredentialsAreSet(t *testing.T) {
+	api := FlinkRestClient{"http://localhost:80", "username", "password", &retryablehttp.Client{}}
+
+	req, err := api.newRequest("GET", "jobs", nil)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "Basic dXNlcm5hbWU6cGFzc3dvcmQ=", req.Header.Get("Authorization"))
+}
+
+func TestNewRequestShouldNotAddTheBasicAuthenticationHeadersWhenTheUsernameIsUnset(t *testing.T) {
+	api := FlinkRestClient{
+		BaseURL:           "http://localhost:80",
+		BasicAuthPassword: "password",
+		Client:            &retryablehttp.Client{},
+	}
+
+	req, err := api.newRequest("GET", "jobs", nil)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "", req.Header.Get("Authorization"))
+}
+
+func TestNewRequestShouldNotAddTheBasicAuthenticationHeadersWhenThePassworsdIsUnset(t *testing.T) {
+	api := FlinkRestClient{
+		BaseURL:           "http://localhost:80",
+		BasicAuthUsername: "username",
+		Client:            &retryablehttp.Client{},
+	}
+
+	req, err := api.newRequest("GET", "jobs", nil)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "", req.Header.Get("Authorization"))
+}
+
+func TestNewRequestShouldNotAddTheBasicAuthenticationHeadersWhenBothCredentialsAreUnset(t *testing.T) {
+	api := FlinkRestClient{
+		BaseURL: "http://localhost:80",
+		Client:  &retryablehttp.Client{},
+	}
+
+	req, err := api.newRequest("GET", "jobs", nil)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "", req.Header.Get("Authorization"))
 }
 
 func createTestServerWithoutBodyCheck(t *testing.T, expectedURL string, status int, body string) *httptest.Server {

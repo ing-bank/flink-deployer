@@ -17,7 +17,7 @@ type runJarRequest struct {
 
 // RunJar executes a specific JAR file with the supplied parameters on the Flink cluster
 func (c FlinkRestClient) RunJar(jarID string, entryClass string, jarArgs string, parallelism int, savepointPath string, allowNonRestoredState bool) error {
-	req := runJarRequest{
+	runJarRequest := runJarRequest{
 		EntryClass:            entryClass,
 		ProgramArgs:           jarArgs,
 		Parallelism:           parallelism,
@@ -25,9 +25,15 @@ func (c FlinkRestClient) RunJar(jarID string, entryClass string, jarArgs string,
 		SavepointPath:         savepointPath,
 	}
 	reqBody := new(bytes.Buffer)
-	json.NewEncoder(reqBody).Encode(req)
+	json.NewEncoder(reqBody).Encode(runJarRequest)
 
-	res, err := c.Client.Post(c.constructURL(fmt.Sprintf("jars/%v/run", jarID)), "application/json", reqBody)
+	req, err := c.newRequest("POST", c.constructURL(fmt.Sprintf("jars/%v/run", jarID)), reqBody)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.Client.Do(req)
 	if err != nil {
 		return err
 	}

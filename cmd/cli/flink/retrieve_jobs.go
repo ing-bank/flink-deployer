@@ -19,7 +19,12 @@ type retrieveJobsResponse struct {
 
 // RetrieveJobs returns all the jobs on the Flink cluster
 func (c FlinkRestClient) RetrieveJobs() ([]Job, error) {
-	res, err := c.Client.Get(c.constructURL("jobs/overview"))
+	req, err := c.newRequest("GET", c.constructURL("jobs/overview"), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
