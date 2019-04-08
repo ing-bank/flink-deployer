@@ -186,7 +186,6 @@ func TerminateAction(c *cli.Context) error {
 
 	terminate.Mode = mode
 	err := operator.Terminate(terminate)
-
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
 	}

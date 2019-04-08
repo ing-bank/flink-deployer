@@ -13,32 +13,15 @@ type TerminateJobErrorResponse struct {
 
 // Terminate terminates a running job specified by job ID
 func (c FlinkRestClient) Terminate(jobID string, mode string) error {
-	var url string
+	var path string
 	if len(mode) > 0 {
-		url = c.constructURL(fmt.Sprintf("jobs/%v?mode=%v", jobID, mode))
+		path = fmt.Sprintf("jobs/%v?mode=%v", jobID, mode)
 	} else {
-		url = c.constructURL(fmt.Sprintf("jobs/%v", jobID))
+		path = fmt.Sprintf("jobs/%v", jobID)
 	}
 
-	req, err := c.newRequest("PATCH", url, nil)
-
-	// set retry policy: do not retry when status code is 500. (indicating the job is not stoppable)
-	c.Client.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (b bool, e error) {
-		if ctx.Err() != nil {
-			return false, ctx.Err()
-		}
-
-		if err != nil {
-			return true, err
-		}
-
-		if resp.StatusCode == 0 || resp.StatusCode > 500 {
-			return true, nil
-		}
-
-		return false, nil
-	}
-
+	c.Client.CheckRetry = RetryPolicy
+	req, err := c.newRequest("PATCH", c.constructURL(path), nil)
 	res, err := c.Client.Do(req)
 
 	defer res.Body.Close()
@@ -57,4 +40,21 @@ func (c FlinkRestClient) Terminate(jobID string, mode string) error {
 	}
 
 	return nil
+}
+
+// Do not retry when status code is 500. (indicating the job is not stoppable)
+func RetryPolicy(ctx context.Context, resp *http.Response, err error) (bool, error) {
+	if ctx.Err() != nil {
+		return false, ctx.Err()
+	}
+
+	if err != nil {
+		return true, err
+	}
+
+	if resp.StatusCode == 0 || resp.StatusCode > 500 {
+		return true, nil
+	}
+
+	return false, nil
 }
