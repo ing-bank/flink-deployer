@@ -13,7 +13,8 @@ Currently, it supports several features:
 1. Listing jobs
 2. Deploying a new job
 3. Updating an existing job
-4. Querying Flink queryable state
+4. Terminating an existing job
+5. Querying Flink queryable state
 
 For a full overview of the commands and flags, run `flink-job-deployer help`
 
