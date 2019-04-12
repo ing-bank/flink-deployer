@@ -173,18 +173,17 @@ func TerminateAction(c *cli.Context) error {
 	terminate := operations.TerminateJob{}
 
 	jobNameBase := c.String("job-name-base")
-	if len(jobNameBase) != 0 {
-		terminate.JobNameBase = jobNameBase
-	} else {
+	if len(jobNameBase) == 0 {
 		return cli.NewExitError("unspecified flag 'job-name-base'", -1)
 	}
+	terminate.JobNameBase = jobNameBase
 
 	mode := c.String("mode")
 	if len(mode) > 0 && mode != "cancel" && mode != "stop" {
 		return cli.NewExitError("unknown value for 'mode', only 'cancel' and 'stop' are supported", -1)
 	}
-
 	terminate.Mode = mode
+
 	err := operator.Terminate(terminate)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("an error occurred: %v", err), -1)
