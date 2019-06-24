@@ -20,7 +20,7 @@ type UpdateJob struct {
 	APIToken              string
 	EntryClass            string
 	Parallelism           int
-	ProgramArgs           string
+	ProgramArgs           []string
 	SavepointDir          string
 	AllowNonRestoredState bool
 }

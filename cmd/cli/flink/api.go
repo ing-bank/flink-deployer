@@ -7,6 +7,6 @@ type FlinkRestAPI interface {
 	CreateSavepoint(jobID string, savepointPath string) (CreateSavepointResponse, error)
 	MonitorSavepointCreation(jobID string, requestID string) (MonitorSavepointCreationResponse, error)
 	RetrieveJobs() ([]Job, error)
-	RunJar(jarID string, entryClass string, jarArgs string, parallelism int, savepointPath string, allowNonRestoredState bool) error
+	RunJar(jarID string, entryClass string, jarArgs []string, parallelism int, savepointPath string, allowNonRestoredState bool) error
 	UploadJar(filename string) (UploadJarResponse, error)
 }

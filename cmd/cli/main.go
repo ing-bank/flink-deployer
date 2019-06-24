@@ -72,7 +72,7 @@ func DeployAction(c *cli.Context) error {
 		deploy.Parallelism = 1
 	}
 
-	programArgs := c.String("program-args")
+	programArgs := c.StringSlice("program-args")
 	if len(programArgs) > 0 {
 		deploy.ProgramArgs = programArgs
 	}
@@ -143,7 +143,7 @@ func UpdateAction(c *cli.Context) error {
 		update.Parallelism = 1
 	}
 
-	programArgs := c.String("program-args")
+	programArgs := c.StringSlice("program-args")
 	if len(programArgs) > 0 {
 		update.ProgramArgs = programArgs
 	}
@@ -269,9 +269,9 @@ func main() {
 					Name:  "parallelism, p",
 					Usage: "The parallelism count",
 				},
-				cli.StringFlag{
+				cli.StringSliceFlag{
 					Name:  "program-args, pa",
-					Usage: "The arguments to pass to the program execution",
+					Usage: "The arguments to pass to the program execution. This flag may be repeated to provide multiple arguments",
 				},
 				cli.StringFlag{
 					Name:  "savepoint-dir, sd",
@@ -317,7 +317,7 @@ func main() {
 					Name:  "parallelism, p",
 					Usage: "The parallelism count",
 				},
-				cli.StringFlag{
+				cli.StringSliceFlag{
 					Name:  "program-args, pa",
 					Usage: "The arguments to pass to the program execution",
 				},

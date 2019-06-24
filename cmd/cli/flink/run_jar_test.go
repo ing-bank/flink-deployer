@@ -16,7 +16,7 @@ func TestRunJarReturnsAnErrorWhenTheStatusIsNot200(t *testing.T) {
 		BaseURL: server.URL,
 		Client:  retryablehttp.NewClient(),
 	}
-	err := api.RunJar("id", "MainClass", "", 1, "/data/flink", false)
+	err := api.RunJar("id", "MainClass", []string{}, 1, "/data/flink", false)
 
 	assert.EqualError(t, err, "Unexpected response status 202 with body {}")
 }
@@ -29,7 +29,7 @@ func TestRunJarCorrectlyReturnsNilWhenTheCallSucceeds(t *testing.T) {
 		BaseURL: server.URL,
 		Client:  retryablehttp.NewClient(),
 	}
-	err := api.RunJar("id", "MainClass", "", 1, "/data/flink", false)
+	err := api.RunJar("id", "MainClass", []string{}, 1, "/data/flink", false)
 
 	assert.Nil(t, err)
 }

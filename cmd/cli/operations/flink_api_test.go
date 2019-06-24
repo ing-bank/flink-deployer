@@ -38,7 +38,7 @@ func (c TestFlinkRestClient) MonitorSavepointCreation(jobID string, requestID st
 func (c TestFlinkRestClient) RetrieveJobs() ([]flink.Job, error) {
 	return mockedRetrieveJobsResponse, mockedRetrieveJobsError
 }
-func (c TestFlinkRestClient) RunJar(jarID string, entryClass string, jarArgs string, parallelism int, savepointPath string, allowNonRestoredState bool) error {
+func (c TestFlinkRestClient) RunJar(jarID string, entryClass string, jarArgs []string, parallelism int, savepointPath string, allowNonRestoredState bool) error {
 	return mockedRunJarError
 }
 func (c TestFlinkRestClient) UploadJar(filename string) (flink.UploadJarResponse, error) {

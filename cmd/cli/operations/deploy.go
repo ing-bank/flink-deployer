@@ -15,7 +15,7 @@ type Deploy struct {
 	LocalFilename         string
 	EntryClass            string
 	Parallelism           int
-	ProgramArgs           string
+	ProgramArgs           []string
 	SavepointDir          string
 	SavepointPath         string
 	AllowNonRestoredState bool

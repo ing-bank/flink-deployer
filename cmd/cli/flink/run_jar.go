@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 )
 
 type runJarRequest struct {
@@ -16,10 +17,10 @@ type runJarRequest struct {
 }
 
 // RunJar executes a specific JAR file with the supplied parameters on the Flink cluster
-func (c FlinkRestClient) RunJar(jarID string, entryClass string, jarArgs string, parallelism int, savepointPath string, allowNonRestoredState bool) error {
+func (c FlinkRestClient) RunJar(jarID string, entryClass string, jarArgs []string, parallelism int, savepointPath string, allowNonRestoredState bool) error {
 	runJarRequest := runJarRequest{
 		EntryClass:            entryClass,
-		ProgramArgs:           jarArgs,
+		ProgramArgs:           strings.Join(jarArgs, " "),
 		Parallelism:           parallelism,
 		AllowNonRestoredState: allowNonRestoredState,
 		SavepointPath:         savepointPath,
