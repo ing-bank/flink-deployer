@@ -346,6 +346,48 @@ func TestUpdateJobShouldReturnAnErrorWhenNoRunningJobsAreFound(t *testing.T) {
 	assert.EqualError(t, err, "no instance running for job name base \"WordCountStateful\". Aborting update")
 }
 
+func TestUpdateJobShouldReturnErrorWhenNoRunningJobsAreFoundAndFallbackToDeployIsFalse(t *testing.T) {
+	mockedRetrieveJobsError = nil
+	mockedRetrieveJobsResponse = []flink.Job{}
+
+	operator := RealOperator{
+		FlinkRestAPI: TestFlinkRestClient{
+			BaseURL: "http://localhost",
+			Client:  &http.Client{},
+		},
+	}
+
+	err := operator.Update(UpdateJob{
+		JobNameBase:      "WordCountStateful",
+		LocalFilename:    "testdata/sample.jar",
+		SavepointDir:     "/data/flink",
+		FallbackToDeploy: false,
+	})
+
+	assert.EqualError(t, err, "no instance running for job name base \"WordCountStateful\". Aborting update")
+}
+
+func TestUpdateJobShouldFallbackToDeployWhenNoRunningJobsAreFound(t *testing.T) {
+	mockedRetrieveJobsError = nil
+	mockedRetrieveJobsResponse = []flink.Job{}
+
+	operator := RealOperator{
+		FlinkRestAPI: TestFlinkRestClient{
+			BaseURL: "http://localhost",
+			Client:  &http.Client{},
+		},
+	}
+
+	err := operator.Update(UpdateJob{
+		JobNameBase:      "WordCountStateful",
+		LocalFilename:    "testdata/sample.jar",
+		SavepointDir:     "/data/flink",
+		FallbackToDeploy: true,
+	})
+
+	assert.Nil(t, err)
+}
+
 func TestUpdateJobShouldReturnAnErrorWhenMultipleRunningJobsAreFound(t *testing.T) {
 	mockedRetrieveJobsError = nil
 	mockedRetrieveJobsResponse = []flink.Job{

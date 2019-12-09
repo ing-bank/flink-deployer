@@ -157,6 +157,8 @@ func UpdateAction(c *cli.Context) error {
 
 	update.AllowNonRestoredState = c.Bool("allow-non-restored-state")
 
+	update.FallbackToDeploy = c.Bool("fallback-to-deploy")
+
 	err := operator.Update(update)
 
 	if err != nil {
@@ -328,6 +330,10 @@ func main() {
 				cli.BoolFlag{
 					Name:  "allow-non-restored-state, anrs",
 					Usage: "Allow the job to run if the state cannot be restored",
+				},
+				cli.BoolFlag{
+					Name:  "fallback-to-deploy, fbd",
+					Usage: "Continue to deploy the job if no running instance of the job is found",
 				},
 			},
 			Action: UpdateAction,
