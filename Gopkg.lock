@@ -2,6 +2,49 @@
 
 
 [[projects]]
+  digest = "1:70457884e4b0a5ca3f9b62978655595d63731f2d141f3dcce8f51c4820727d68"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/ini",
+    "internal/s3err",
+    "internal/sdkio",
+    "internal/sdkrand",
+    "internal/sdkuri",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/restxml",
+    "private/protocol/xml/xmlutil",
+    "service/s3",
+    "service/sts",
+  ]
+  pruneopts = ""
+  revision = "a0a1669c06da522317116cc7624ac257d9c5fdfd"
+  version = "v1.16.21"
+
+[[projects]]
   digest = "1:f619cb9b07aebe5416262cdd8b86082e8d5bdc5264cb3b615ff858df0b645f97"
   name = "github.com/cenkalti/backoff"
   packages = ["."]
@@ -32,6 +75,13 @@
   packages = ["."]
   pruneopts = ""
   revision = "e651d75abec6fbd4f2c09508f72ae7af8a8b7171"
+
+[[projects]]
+  digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c2b33e84"
 
 [[projects]]
   digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
@@ -95,6 +145,10 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/credentials",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/s3",
     "github.com/cenkalti/backoff",
     "github.com/hashicorp/go-retryablehttp",
     "github.com/spf13/afero",
